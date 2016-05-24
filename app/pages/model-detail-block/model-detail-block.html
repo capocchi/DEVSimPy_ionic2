@@ -1,0 +1,11 @@
+<ion-navbar *navbar>
+  <ion-title>{{ (_modelService.selectedModel$ | async)?.model_name }}</ion-title>
+</ion-navbar>
+
+<ion-content padding class="model-detail-block">
+
+  <ion-card *ngFor="let block of (_modelService.selectedModel$ | async)?.atomicBlocks"  (click)="goToParam(block.label)">
+    <ion-card-header>{{block.label}}</ion-card-header>
+  </ion-card>
+
+</ion-content>

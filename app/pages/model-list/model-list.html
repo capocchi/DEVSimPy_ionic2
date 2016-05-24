@@ -1,0 +1,17 @@
+<ion-navbar *navbar>
+  <ion-title>DEVSimPy</ion-title>
+</ion-navbar>
+
+<ion-content padding class="model-list">
+  <ion-card *ngFor="let model of _modelService.models$ | async" (click)="goToModel(model.model_name)">
+      <ion-card-header>
+          {{model.model_name | uppercase}}
+      </ion-card-header>
+      <ion-card-content>
+          {{ model.last_modified }}
+      </ion-card-content>
+      <ion-card-content>
+          {{ model.size }}
+      </ion-card-content>
+  </ion-card>
+</ion-content>

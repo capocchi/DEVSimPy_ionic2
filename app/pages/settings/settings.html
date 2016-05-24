@@ -1,0 +1,28 @@
+<ion-navbar *navbar>
+  <ion-title>DEVSimPy</ion-title>
+</ion-navbar>
+
+<ion-content padding class="settings">
+
+  <ion-card>
+    <ion-card-header>SIMULATION SERVER</ion-card-header>
+    <ion-card-content>
+      <h2>{{(_connectionService.server$ | async)?.url}}</h2>
+      <ion-list *ngIf="(_connectionService.server$ | async)?.isConnected">
+        <ion-item *ngFor="let elem of (_connectionService.server$ | async)?.info">
+          <ion-label>{{elem.name}}</ion-label>
+          <ion-label>{{elem.value}}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>LOCAL STORAGE</ion-card-header>
+    <ion-card-content>
+      <!--button block default (click)="_connectionService.clearStoredServers()">CLEAR SERVERS</button>
+      <button block default (click)="_modelService.clearStoredModels()">CLEAR MODELS</button-->
+      <button block default (click)="clearAll()">CLEAR</button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

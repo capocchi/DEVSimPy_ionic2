@@ -1,0 +1,12 @@
+<ion-navbar *navbar>
+  <ion-title>RESULTS</ion-title>
+</ion-navbar>
+
+<ion-content padding class="simu-result">
+  <div><canvas #result class='simu-result-graph'></canvas></div>
+  <!--iframe width="400" height="400" frameborder="0" scrolling="no" src="https://plot.ly/~cebeka/8.embed"></iframe-->
+
+  <iframe width="100%" height="100%" frameborder="0" scrolling="no" src="https://plot.ly/~cebeka/8.embed"></iframe>
+  <button block (click)="refresh()">REFRESH</button>
+  <button block (click)="goToPlotly()">GO TO PLOTLY</button>
+</ion-content>

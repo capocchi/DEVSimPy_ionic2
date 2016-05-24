@@ -1,0 +1,19 @@
+<ion-navbar *navbar>
+  <ion-title>DEVSimPy</ion-title>
+</ion-navbar>
+
+<ion-content padding class="simulation-list">
+  <ion-card *ngFor="let simu of _simulationService.simus$ | async">
+      <ion-card-header ion-item>
+          {{simu.info.model_name | uppercase}}
+          <button item-left (click)="deleteSimu(simu.simu_name)"><ion-icon name="trash"></ion-icon></button>
+          <button item-right (click)="goToSimu(simu.info.model_name, simu.simu_name)"><ion-icon name="eye"></ion-icon></button>
+      </ion-card-header>
+      <ion-card-content ion-item>
+          {{ simu.info.date }}
+          <ion-badge item-right>
+            {{ simu.info.status }}
+          </ion-badge>
+      </ion-card-content>
+  </ion-card>
+</ion-content>

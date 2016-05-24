@@ -1,0 +1,33 @@
+<ion-navbar *navbar>
+  <ion-title>{{ (_simulationService.selectedSimu$ | async)?.info.model_name }}</ion-title>
+</ion-navbar>
+
+<ion-content padding class="model-detail-simulation">
+
+  <ion-card *ngIf="(_simulationService.selectedSimu$ | async)?.info.status === 'NOT_STARTED'">
+    <ion-card-content>
+      <ion-item>
+        <ion-label fixed>Duration</ion-label>
+        <ion-input type="number" [(ngModel)]="simulatedDuration"></ion-input>
+      </ion-item>
+      <button block default (click)="startSimu()">SIMULATE</button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="(_simulationService.selectedSimu$ | async)?.info.status !== 'NOT_STARTED'">
+    <ion-card-content>
+      <ion-label>{{(_simulationService.selectedSimu$ | async)?.info.date}}</ion-label>
+      <ion-label>{{(_simulationService.selectedSimu$ | async)?.info.simulated_duration}}</ion-label>
+      <ion-badge>{{(_simulationService.selectedSimu$ | async)?.info.status}}</ion-badge>
+
+      <button block *ngIf="(_simulationService.selectedSimu$ | async)?.info.status==='RUNNING'" (click)="pauseSimu()"><ion-icon name="pause"></ion-icon></button>
+      <button block *ngIf="(_simulationService.selectedSimu$ | async)?.info.status==='RUNNING'" (click)="refreshSimu()"><ion-icon name="refresh"></ion-icon></button>
+      <button block *ngIf="(_simulationService.selectedSimu$ | async)?.info.status==='RUNNING'" (click)="killSimu()"><ion-icon name="close-circle"></ion-icon></button>
+
+      <button block *ngIf="(_simulationService.selectedSimu$ | async)?.info.status==='PAUSED'" (click)="resumeSimu()"><ion-icon name="play"></ion-icon></button>
+      <button block *ngIf="(_simulationService.selectedSimu$ | async)?.info.status==='PAUSED'" (click)="killSimu()"><ion-icon name="close-circle"></ion-icon></button>
+
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

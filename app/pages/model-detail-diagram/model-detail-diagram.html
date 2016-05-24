@@ -1,0 +1,11 @@
+<ion-navbar *navbar>
+  <ion-title>{{ (_modelService.selectedModel$ | async)?.model_name }}</ion-title>
+</ion-navbar>
+
+<ion-content padding class="model-detail-diagram">
+  <ion-card>
+    <ion-card-content #map class="joint-map">
+    </ion-card-content>
+  </ion-card>
+  <ion-label>{{ (_modelService.selectedModel$ | async)?.description }}</ion-label>
+</ion-content>
