@@ -29,6 +29,11 @@
   <script src="build/js/jquery.min.js"></script>
   <script src="build/js/lodash.min.js"></script>
   <script src="build/js/backbone-min.js"></script>
+  <script>
+    SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
+      return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
+    };
+  </script>
   <script src="build/js/joint.min.js"></script>
   <script src="build/js/joint.shapes.devs.min.js"></script>
   <!-- the bundle which is built from the app's source code -->

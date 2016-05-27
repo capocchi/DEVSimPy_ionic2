@@ -1,4 +1,4 @@
-import {Page, NavController} from 'ionic-angular';
+import {Page, NavController, Loading} from 'ionic-angular';
 import {ViewChild, ElementRef} from '@angular/core';
 import {ModelService} from '../../providers/model-service/model-service';
 import {Model} from '../../data-types/data-types';
@@ -12,6 +12,7 @@ declare var joint : any;
 export class ModelDetailDiagramPage {
 
   @ViewChild('map') map: ElementRef;
+  public loading : Loading;
 
   private _modelSubscription = null;
 
@@ -37,13 +38,14 @@ export class ModelDetailDiagramPage {
   }
 
   draw(model : Model) {
-
-      /*console.log('******DRAW******');
+    //this.presentLoading();
+    console.log('loading')
+      console.log('******DRAW******');
       console.log(this.map.nativeElement);
       let w = this.map.nativeElement.clientWidth;
       let h = this.map.nativeElement.clientHeight;
       console.log(`size = ${h} / ${w}`);
-      console.log('****************');*/
+      console.log('****************');
 
       let graph = new joint.dia.Graph;
       let el = this.map.nativeElement;
@@ -74,6 +76,17 @@ export class ModelDetailDiagramPage {
 
        paper.scaleContentToFit();
        paper.setOrigin(paper.options.origin["x"], 50);
+       console.log('done')
+       //this.loading.dismiss();
     }
-//}
+
+  presentLoading() {
+    this.loading = Loading.create({
+      content: 'Drawing...',
+      duration: 5000});
+    this.nav.present(this.loading);
+    /*setTimeout(() => {
+      loading.dismiss();
+    }, 5000);*/
+  }
 }

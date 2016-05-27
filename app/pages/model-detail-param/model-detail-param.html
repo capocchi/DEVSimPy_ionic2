@@ -8,8 +8,10 @@
       <ion-list *ngIf="_blockLocalCopy">
         <ion-item *ngFor="let param of _blockLocalCopy.params">
           <ion-label fixed>{{param.name | uppercase}}</ion-label>
-          <ion-input type="text" [(ngModel)]="param.value"></ion-input>
-          <button round  item-right (click)="showPhoneInputs(param)"><ion-icon name="phone-portrait"></ion-icon></button>
+          <!--ion-label>{{param.value}}</ion-label-->
+          <ion-input *ngIf="param.type!=='image'" type="text" [(ngModel)]="param.value"></ion-input>
+          <ion-thumbnail item-right *ngIf="param.type==='image'"><img [src]="param.value"></ion-thumbnail>
+          <button clear item-right (click)="showPhoneInputs(param)"><ion-icon name="phone-portrait"></ion-icon></button>
         </ion-item>
       </ion-list>
     </ion-card-content>

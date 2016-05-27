@@ -21,6 +21,7 @@ export class Server {
 //export interface BlockParam { [name:string] : any } --> not usable
 export interface BlockParam {
   // This interface is necessary for use within Angular template syntax
+  type  : string;
   name  : string;
   value : any;
 }
@@ -33,7 +34,15 @@ export class Block {
     this.label = label;
     this.params = [];
     Object.keys(xParams).forEach(key => {
-      let param : BlockParam = {'name' : key, 'value':xParams[key]};
+      let paramType = typeof xParams[key];
+      if (paramType === 'string') {
+        if (xParams[key].endsWith('.jpg') || xParams[key].endsWith('.png')) {
+          paramType = 'image';
+        }
+      }
+      let param : BlockParam = {name  : key,
+                                value : xParams[key],
+                                type  : paramType};
       this.params.push(param);
     })
     /*Object.keys(xParams).forEach(key => {

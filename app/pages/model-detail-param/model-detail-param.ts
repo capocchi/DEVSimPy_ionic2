@@ -67,28 +67,15 @@ export class ModelDetailParamPage {
   }
 
   public showLocation(param : BlockParam){
-    //let options = {timeout: 10000, enableHighAccuracy: true};
-    // Below : code without use of ionic-native
-    /*if (navigator && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          this.displayAlert(`${position.coords.latitude} / ${position.coords.longitude}`)
-        },
-        error => {this.displayAlert(error.message)}
-      );
-    } else {
-      this.displayAlert("Geolocation is not supported.")
-    }*/
-    Geolocation.getCurrentPosition().then(
+
+    Geolocation.getCurrentPosition({maximumAge: 3000, timeout: 5000, enableHighAccuracy: true}).then(
       position => {
         let alert = Alert.create();
         alert.setTitle('Select geolocation input');
-
         alert.addInput({type: 'checkbox', label: `latitude : ${position.coords.latitude}`, value: 'latitude'});
         alert.addInput({type: 'checkbox', label: `longitude : ${position.coords.longitude}`, value: 'longitude'});
         alert.addInput({type: 'checkbox', label: `altitude : ${position.coords.altitude}`, value: 'altitude'});
         alert.addInput({type: 'checkbox', label: `heading : ${position.coords.heading}`, value: 'heading'});
-        //alert.addInput({type: 'checkbox', label: `speed : ${position.coords.speed}`, value: 'speed'});
 
         alert.addButton('Cancel');
         alert.addButton({
@@ -106,7 +93,7 @@ export class ModelDetailParamPage {
         });
 
         this.nav.present(alert);
-        //this.displayAlert(`${position.coords.latitude} / ${position.coords.longitude}`)
+
       },
       error => {this.displayAlert(error.message)}
     );
@@ -115,21 +102,29 @@ export class ModelDetailParamPage {
     // See options definition here :
     // https://github.com/driftyco/ionic-native/blob/master/src/plugins/camera.ts
     let options = {
-            destinationType: 0,// base-64 encoded string (1:FileURI/2:NativeURI)
-            sourceType: 1,//Camera (0:PhotoLibrary/2:SavedPhotoAlbum)
-            encodingType: 0,//JPEG(1:PNG)
+            destinationType: 1,// 0:base-64 encoded string/1:FileURI/2:NativeURI
+            sourceType: 1,// 0:PhotoLibrary/1:Camera/2:SavedPhotoAlbum
+            encodingType: 0,// 0:JPEG/1:PNG
             quality:100,
             allowEdit: false,
             saveToPhotoAlbum: false
         };
     Camera.getPicture(options).then(
       img => {
+        /*let base64Image = "data:image/jpeg;base64," + img;
+        param.value=JSON.stringify(base64Image);*/
 
-        let base64Image = "data:image/jpeg;base64," + img;
-        param.value=JSON.stringify(base64Image);
-        console.log('picture taken ');
-        //let s = JSON.stringify(base64Image);
-        //console.log(s );
+        this._modelService.uploadPicture(img, this._blockLocalCopy.label)
+        .then (response => {
+          console.log(response);
+          param.type = 'image';
+          param.value = response;
+        })
+        .catch (error => {
+          console.log(error);
+          this.displayAlert("Image upload failed.")
+        });
+
       },
       error => {this.displayAlert(error.message)}
     );

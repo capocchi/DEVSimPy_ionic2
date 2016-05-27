@@ -37,7 +37,7 @@ var isRelease = argv.indexOf('--release') > -1;
 
 gulp.task('watch', ['clean'], function(done){
   runSequence(
-    ['sass', 'html', 'fonts', 'scripts', 'copyThirdPartyLib', 'copyThirdPartyCss'],
+    ['sass', 'html', 'fonts', 'scripts', 'copyThirdPartyLib', 'copyThirdPartyCss', 'copyImg'],
     function(){
       gulpWatch('app/**/*.scss', function(){ gulp.start('sass'); });
       gulpWatch('app/**/*.html', function(){ gulp.start('html'); });
@@ -48,7 +48,7 @@ gulp.task('watch', ['clean'], function(done){
 
 gulp.task('build', ['clean'], function(done){
   runSequence(
-    ['sass', 'html', 'fonts', 'scripts', 'copyThirdPartyLib', 'copyThirdPartyCss'],
+    ['sass', 'html', 'fonts', 'scripts', 'copyThirdPartyLib', 'copyThirdPartyCss', 'copyImg'],
     function(){
       buildBrowserify({
         minify: isRelease,
@@ -78,4 +78,9 @@ gulp.task('copyThirdPartyLib', function() {
 gulp.task('copyThirdPartyCss', function() {
    gulp.src('libs/**/*.css')
    .pipe(gulp.dest('www/build/css'));
+});
+
+gulp.task('copyImg', function() {
+   gulp.src('resources/*.png')
+   .pipe(gulp.dest('www/build/img'));
 });

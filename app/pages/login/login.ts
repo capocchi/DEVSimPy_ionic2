@@ -29,7 +29,7 @@ export class LoginPage {
           this.displayAlert(server.info);
         }
       },
-      error => {this.displayAlert(error)}
+      error => {this.displayAlert('Invalid server address')}
     );
     // TODO : handle login and password
   }

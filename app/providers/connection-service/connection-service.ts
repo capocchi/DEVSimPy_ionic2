@@ -5,8 +5,8 @@ import {BehaviorSubject} from "rxjs/Rx";
 import {Storage, LocalStorage} from 'ionic-angular';
 import {Server} from '../../data-types/data-types';
 
-const SERVER_URL_LIST = "SERVER_URL_LIST";
-const LAST_USED_SERVER_URL = "LAST_USED_SERVER_URL";
+export const SERVER_URL_LIST = "SERVER_URL_LIST";
+export const LAST_USED_SERVER_URL = "LAST_USED_SERVER_URL";
 //const LAST_USED_LOGIN/LAST_USED_PASSWORD?
 
 @Injectable()
