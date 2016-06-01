@@ -21,7 +21,7 @@ export class SimulationListPage {
   public goToSimu(model_name : string, simulation_name : string) {
     this._simulationService.loadSimu(simulation_name, model_name);
     this._modelService.loadModel(model_name);
-    this._nav.push(ModelDetailPage);
+    this._nav.push(ModelDetailPage, {selectedPage : 'Result'});
   }
 
   public deleteSimu(simulation_name : string) {

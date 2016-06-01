@@ -1,7 +1,7 @@
-<ion-tabs class="tabs-positive" selectedIndex="1">
+<ion-tabs #modelDetailTabs class="tabs-positive" selectedIndex="1">
   <ion-tab tabIcon="arrow-back" (select)="goBackHome()"></ion-tab>
-  <ion-tab tabIcon="options" [root]="tabModelBlock"></ion-tab>
   <ion-tab tabIcon="eye" [root]="tabModelDiagram"></ion-tab>
+  <ion-tab tabIcon="options" [root]="tabModelBlock"></ion-tab>
   <ion-tab tabIcon="aperture" [root]="tabSimulation"></ion-tab>
-  <ion-tab tabIcon="pulse" tabTitle="Results" [root]="tabSimuResult"></ion-tab>
+  <ion-tab tabIcon="pulse" [root]="tabSimuResult"></ion-tab>
 </ion-tabs>

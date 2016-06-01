@@ -3,10 +3,12 @@
 </ion-navbar>
 
 <ion-content padding class="simu-result">
-  <div><canvas #result class='simu-result-graph'></canvas></div>
-  <!--iframe width="400" height="400" frameborder="0" scrolling="no" src="https://plot.ly/~cebeka/8.embed"></iframe-->
-
-  <iframe width="100%" height="100%" frameborder="0" scrolling="no" src="https://plot.ly/~cebeka/8.embed"></iframe>
+  <!--div><canvas #result class='simu-result-graph'></canvas></div>
+  <button block (click)="refresh()">REFRESH</button-->
+  <ion-list>
+    <ion-item *ngFor="let output of (_simulationService.selectedSimu$ | async)?.outputs"  (click)="show(output.plotUrl)">{{output.label}}</ion-item>
+  </ion-list>
   <button block (click)="refresh()">REFRESH</button>
-  <button block (click)="goToPlotly()">GO TO PLOTLY</button>
+  <iframe *ngIf="plotUrl" width="100%" height="100%" frameborder="0" scrolling="no" [src]=plotUrl></iframe>
+
 </ion-content>

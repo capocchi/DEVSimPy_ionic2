@@ -1,33 +1,45 @@
-import {Page, NavController} from 'ionic-angular';
-import {ViewChild} from '@angular/core';
+import {Page, NavController, NavParams} from 'ionic-angular';
+//import {ViewChild} from '@angular/core';
 //import {PusherResultService} from '../../providers/pusher-result-service/pusher-result-service';
-import {Result} from '../../data-types/data-types';
-import {InAppBrowser} from 'ionic-native';
+//import {Result} from '../../data-types/data-types';
+//import {InAppBrowser} from 'ionic-native';
 //import {Chart} from 'chart.js';
 
-declare var Chart : any;
+import {SimulationService} from '../../providers/simulation-service/simulation-service';
+
+//declare var Chart : any;
 
 @Page({
   templateUrl: 'build/pages/simu-result/simu-result.html',
 })
 export class SimuResultPage {
-  @ViewChild('result') canvas;
-  private _res : Result[];
-  private _ctx;
-  private _chart;
+  //@ViewChild('result') canvas;
+  //private _res : Result[];
+  //private _ctx;
+  //private _chart;
+  plotUrl : string = ''
 
-  constructor(public nav: NavController) {
+  constructor(public nav: NavController,
+              private _simulationService: SimulationService) {
     // View does not exist yet
     console.log("init SimuResultPage");
-    this._res = [];
+
+    //this._res = [];
     // Chart JS global configuration
     //Chart.defaults.global.animation.duration = 0;
-    Chart.defaults.global.elements.line.tension = 0;
-
+    //Chart.defaults.global.elements.line.tension = 0;
   }
 
-  //onPageWillEnter(){ --> NOK : View does not exist yet
-  ngAfterViewInit(){
+  public refresh(){
+    this._simulationService.getSelectedSimuOutputs(); 
+  }
+
+  public show (path : string){
+    console.log(path)
+    this.plotUrl = path;
+  }
+
+  /*ngAfterViewInit(){ //onPageWillEnter(){ --> NOK : View does not exist yet
     console.log('init result graph');
     this._ctx = this.canvas.nativeElement.getContext("2d");
     let chartInput = {labels : [], datasets : []};
@@ -48,7 +60,7 @@ export class SimuResultPage {
 
     //console.log(this._chart.data.datasets[0].data);
 
-    /*this._pusherService.result$.subscribe(
+    this._pusherService.result$.subscribe(
       result  => {
         //this._res.push(result);
         console.log(result);
@@ -60,14 +72,14 @@ export class SimuResultPage {
         //}
       },
       error => console.log(error)
-    );*/
+    );
   }
 
   refresh() {
     this._chart.update();
-  }
+  }*/
 
-  goToPlotly() {
+  /*goToPlotly() {
     InAppBrowser.open("https://plot.ly", "_system", "location=yes");
-  }
+  }*/
 }

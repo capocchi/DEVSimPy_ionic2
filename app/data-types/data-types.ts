@@ -99,20 +99,28 @@ export class Model {
 /******************************************************************************/
 //export enum SimulationStatus { NOT_STARTED, RUNNING, PAUSED, FINISHED_OK, FINISHED_NOK, UNEXPECTED }
 // Find out how to use it in the ngSwitch directive
+export interface SimulationOutput {
+  label   : string;
+  plotUrl : string;
+}
 
 export class Simulation {
+  public outputs : SimulationOutput[] = []
+
   constructor (public simu_name : string,
                public info : any){}
 
-  public toStatus() : string {
+  public toColor() : string {
     let xStatus = this.info.status;
-    let iStatus : string;//SimulationStatus;
-    if (xStatus === "RUNNING") {iStatus = "RUNNING"}
-    else if (xStatus === "PAUSED") {iStatus = "PAUSED"}
-    else if (xStatus === "FINISHED with exit code 0") {iStatus = "FINISHED_OK"}
-    else if (xStatus.slice(0,8) === "FINISHED") {iStatus = "FINISHED_NOK"}
-    else {iStatus = "UNEXPECTED"}
-    return iStatus;
+    let xcode   = this.info.exit_code;
+    let color   = 'primary'
+    if (xStatus === "RUNNING") {color = 'secondary'} // green
+    else if (xStatus === "PAUSED") {color = 'light'} // grey
+    else if (xStatus === "FINISHED") {
+      if (xcode == 0) {color = 'primary'} // blue
+      else {color = 'danger'} // red
+    }
+    return color;
   }
 }
 

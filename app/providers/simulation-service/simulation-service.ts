@@ -23,7 +23,7 @@ export class SimulationService {
 
   //private _selectedSimu  : Simulation;
   private _simusBS$        : BehaviorSubject<Array<Simulation>> = new BehaviorSubject([]);
-  public   simus$           : Observable<Array<Simulation>> = this._simusBS$.asObservable();
+  public   simus$          : Observable<Array<Simulation>> = this._simusBS$.asObservable();
 
   private _selectedSimuBS$ : BehaviorSubject<Simulation> = new BehaviorSubject(null);
   public   selectedSimu$   : Observable<Simulation> = this._selectedSimuBS$.asObservable();
@@ -33,7 +33,6 @@ export class SimulationService {
   constructor(public _http: Http,
               private _connectionService: ConnectionService) {
     // Server is selected by the User :
-    console.log("SIMUSERVICE subscribe to server$")
     this._connectionService.server$.subscribe(
       server => {this._simuEndPoint = `${server.url}/simulations`}
     );
@@ -46,8 +45,8 @@ export class SimulationService {
           let simus = response.json().simulations;
           let simuStore = []
           if (simus) {
-            Object.keys(simus).forEach(key => {
-              simuStore.push(new Simulation(key, simus[key]));
+            simus.forEach(simu => {
+              simuStore.push(new Simulation(simu.simulation_name, simu.info));
             })
           }
           // publish new list
@@ -59,6 +58,7 @@ export class SimulationService {
   }
 
   public loadSimu(simuName : string, modelName : string) {
+    console.log("LOAD " + simuName + ' ' + modelName)
     if (simuName === "NOT_STARTED") {
       // store useful data = model_name
       let simu = new Simulation(simuName, {'model_name' : modelName, 'status' : "NOT_STARTED"});
@@ -72,8 +72,9 @@ export class SimulationService {
   }
 
   public start(simulatedDuration: number) {
-    let modelName = this._selectedSimuBS$.getValue().info.model_name;
+    this._selectedSimuBS$.getValue().simu_name = 'NOT_STARTED';
     this._selectedSimuBS$.getValue().info.simulated_duration = simulatedDuration;
+    let modelName = this._selectedSimuBS$.getValue().info.model_name;
 
     let simuPostBody: string = `{"model_name":"${modelName}", "simulated_duration": ${simulatedDuration} }`;
     let headers = new Headers();
@@ -82,14 +83,15 @@ export class SimulationService {
 
     this._http.post(`${this._simuEndPoint}`, simuPostBody, {headers : headers})
       .subscribe(response => {
-        let xSimu = response.json().simulation;
+        let xSimu = response.json();
+
+        // Test if the currently displayed simu is the one for which start was called before publishing updated status
         let selected = this._selectedSimuBS$.getValue();
-        // Make sure the displayed simu is the one for which start was called
+
         if (selected.simu_name === "NOT_STARTED" &&
             selected.info.model_name === xSimu.info.model_name &&
             selected.info.simulated_duration == xSimu.info.simulated_duration)
         {
-          console.log('update selected')
           this._selectedSimuBS$.next(new Simulation(xSimu.simulation_name, xSimu.info));
         }
         }
@@ -97,15 +99,15 @@ export class SimulationService {
   }
 
   public updateSimu(simuName) {
-    console.log("updateSimu " + simuName);
-    this._http.get(`${this._simuEndPoint}/${simuName}`)
-      .subscribe(response => {
-        console.log(response)
-        let xSimu = response.json();
-        if (xSimu.simulation_name === this._selectedSimuBS$.getValue().simu_name) {
-          this._selectedSimuBS$.next(new Simulation(xSimu.simulation_name, xSimu.info));
-        }
-      });
+    if (simuName !== 'NOT_STARTED' && simuName !== 'FINISHED') {
+      this._http.get(`${this._simuEndPoint}/${simuName}`)
+        .subscribe(response => {
+          let xSimu = response.json();
+          if (xSimu.simulation_name === this._selectedSimuBS$.getValue().simu_name) {
+            this._selectedSimuBS$.next(new Simulation(xSimu.simulation_name, xSimu.info));
+          }
+        });
+    }
   }
 
   public updateSelectedSimu() {
@@ -156,7 +158,26 @@ export class SimulationService {
 
   }
 
-  public deleteSimu(simuName : String) {
+  public getSelectedSimuOutputs() {
+    let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/outputs`;
+    this._http.get(url).subscribe(
+      response => {
+        console.log(this._selectedSimuBS$.getValue().simu_name)
+        let jsonResponse = response.json();
+        console.log(jsonResponse)
+        console.log(jsonResponse.outputs)
+        if (jsonResponse.success) {
+          if (jsonResponse.simulation_name === this._selectedSimuBS$.getValue().simu_name) {
+            this._selectedSimuBS$.getValue().outputs = jsonResponse.outputs;
+            this._selectedSimuBS$.next(this._selectedSimuBS$.getValue());
+            console.log(this._selectedSimuBS$.getValue())
+          }
+        }
+      }
+    )
+  }
+
+  public deleteSimu(simuName : string) {
     // PUT request for kill has an empty body
     this._http.delete(`${this._simuEndPoint}/${simuName}`)
       .subscribe(response => {

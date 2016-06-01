@@ -1,10 +1,10 @@
-import {Page, NavController, NavParams} from 'ionic-angular';
+import { Page, NavController, NavParams, Tabs } from 'ionic-angular';
+import { ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Model } from '../../data-types/data-types';
 import { ModelService } from '../../providers/model-service/model-service';
 import { ModelDetailDiagramPage } from '../model-detail-diagram/model-detail-diagram';
 import { ModelDetailBlockPage } from '../model-detail-block/model-detail-block';
-//import { ModelDetailDescriptionPage } from '../model-detail-description/model-detail-description';
 import { ModelDetailSimulationPage } from '../model-detail-simulation/model-detail-simulation';
 import { SimuResultPage } from '../simu-result/simu-result';
 
@@ -12,26 +12,32 @@ import { SimuResultPage } from '../simu-result/simu-result';
   templateUrl: 'build/pages/model-detail/model-detail.html'
 })
 export class ModelDetailPage {
-  //private _model_name : string;
-  //private _simu_name  : string; // empty if the model is not accessed from simulation but from model_list
   private tabModelDiagram;
   private tabModelBlock;
-  //private tabModelDescription;
   private tabSimulation;
   private tabSimuResult;
+  @ViewChild('modelDetailTabs') tabRef: Tabs;
 
   constructor(private _modelService: ModelService,
               public nav: NavController,
               public navParams: NavParams) {
     this.tabModelDiagram     = ModelDetailDiagramPage;
     this.tabModelBlock       = ModelDetailBlockPage;
-    //this.tabModelDescription = ModelDetailDescriptionPage;
     this.tabSimulation       = ModelDetailSimulationPage;
     this.tabSimuResult       = SimuResultPage;
   }
 
-  onPageWillEnter() {
+  onPageDidEnter() {
     console.log("ENTER ModelDetailPage")
+    let selectedPage = this.navParams.get('selectedPage');
+    console.log(selectedPage)
+    if (selectedPage === 'Result') {
+      this.goToResultTab();
+    }
+  }
+
+  goToResultTab() {
+    this.tabRef.select(4);
   }
 
   goBackHome() {
