@@ -58,7 +58,10 @@ export class ModelService {
 
     // Server is selected by the User :
     this._connectionService.server$.subscribe(
-      server => {this._modelsEndPoint = `${server.url}/models`; console.log(this._modelsEndPoint)}
+      server => {
+        if (server) {
+          this._modelsEndPoint = `${server.url}/models`; console.log(this._modelsEndPoint)}
+        }
     );
 
     // Update from server is done when the page is entered
@@ -135,6 +138,10 @@ export class ModelService {
     else {
       console.log('model already loaded')
     }
+  }
+
+  public republishModel() {
+    this._selectedModelBS$.next(this._modelStore[this._selectedModelIndex]);
   }
 
   public saveModelParameters(block : Block) : Promise<string> {

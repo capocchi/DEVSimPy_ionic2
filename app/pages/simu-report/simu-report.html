@@ -1,0 +1,64 @@
+<ion-navbar *navbar>
+  <ion-title>{{_selectedSimu?.info.model_name}}</ion-title>
+</ion-navbar>
+
+<ion-content padding class="simu-report">
+  <ion-list>
+    <ion-item light (click)="showReport()">
+      Simulation Report
+      <ion-icon item-right name="arrow-dropdown"></ion-icon>
+    </ion-item>
+    <ion-item *ngIf="_showReport">
+      <h5>Date</h5>
+      <h5 item-right>{{_selectedSimu?.info.date}}</h5>
+    </ion-item>
+    <ion-item *ngIf="_showReport">
+      <h5>Simulated duration</h5>
+      <h5 item-right>{{_selectedSimu?.info.simulated_duration}}</h5>
+    </ion-item>
+    <ion-item *ngIf="_showReport &&_selectedSimu?.info.status === 'FINISHED'">
+      <h5>Execution duration</h5>
+      <h5 item-right>{{_selectedSimu?.info.report?.duration.toFixed(1)}}</h5>
+    </ion-item>
+    <ion-item  *ngIf="_showReport &&_selectedSimu?.info.status === 'FINISHED'">
+      <h5>Execution Summary</h5>
+    </ion-item>
+    <div *ngIf="_showReport &&_selectedSimu?.info.status === 'FINISHED'">
+      {{_selectedSimu?.info.report?.summary}}
+    </div>
+    <ion-item *ngIf="_showReport && _selectedSimu?.info.exit_code !== 0">
+      <h5>Execution Log</h5>
+    </ion-item>
+    <div *ngIf="_showReport && _selectedSimu?.info.exit_code !== 0">
+      {{_selectedSimu?.info.log}}
+    </div>
+  </ion-list>
+
+  <ion-item *ngIf="_simuIsAlive && _liveResults.length > 0" (click)="showLiveResults()">
+    Simulation Live Results
+    <ion-icon item-right name="arrow-dropdown"></ion-icon>
+  </ion-item>
+  <ion-list *ngIf="_simuIsAlive && _showLiveResults">
+    <ion-item *ngFor="let output of _liveResults" (click)="goToResultUrl(output)">
+      {{output.label}}
+    <ion-spinner name="dots" *ngIf="output.plotUrl===''"></ion-spinner>
+    </ion-item>
+  </ion-list>
+
+  <ion-item *ngIf="_selectedSimu?.info.status === 'FINISHED'" (click)="showResults()">
+    Simulation Results
+    <ion-icon item-right name="arrow-dropdown"></ion-icon>
+  </ion-item>
+  <ion-list *ngIf="_showResults">
+    <ion-item *ngFor="let output of _selectedSimu?.info.report?.output">
+      <ion-label>{{output.label}}</ion-label>
+      <!-- Results from file-->
+      <ion-checkbox *ngIf="output.filename" [(ngModel)]="output.checked"></ion-checkbox>
+      <!-- Results as URL-->
+      <button item-right *ngIf="output.plotUrl" (click)="goToResultUrl(output)"><ion-icon name="pulse"></ion-icon></button>
+    </ion-item>
+    <button block *ngIf="_showResults && _showDisplayButton" (click)="goToResultFile()">SHOW</button>
+  </ion-list>
+
+  <button block *ngIf="_selectedSimu?.info.status !== 'FINISHED'" (click)="refresh()">REFRESH</button>
+  </ion-content>

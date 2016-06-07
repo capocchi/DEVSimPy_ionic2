@@ -1,4 +1,4 @@
-import {Page, NavController, Loading} from 'ionic-angular';
+import {Page, NavController} from 'ionic-angular';
 import {ViewChild, ElementRef} from '@angular/core';
 import {ModelService} from '../../providers/model-service/model-service';
 import {Model} from '../../data-types/data-types';
@@ -12,47 +12,45 @@ declare var joint : any;
 export class ModelDetailDiagramPage {
 
   @ViewChild('map') map: ElementRef;
-  public loading : Loading;
 
   private _modelSubscription = null;
 
   constructor(public nav: NavController,
               private _modelService: ModelService) {
     // View does not exist yet
-  }
-
-  ngAfterViewInit(){
+    console.log('CREATE ModelDetailDiagramPage')
     this._modelSubscription = this._modelService.selectedModel$.subscribe(
       data  => {
-        console.log("receive new model");
+        console.log("receive new model in ModelDetailDiagramPage");
         this.draw(data);
       },
       error => console.log(error)
     );
+  }
 
+  onPageWillEnter(){
+    console.log('ENTER ModelDetailDiagramPage')
   }
 
   ngOnDestroy() {
-    console.log("view diagram destroyed");
+    console.log("DESTROY ModelDetailDiagramPage");
     this._modelSubscription.unsubscribe(); // TBC utile ?
   }
 
-  draw(model : Model) {
-    //this.presentLoading();
-    console.log('loading')
+  draw (model : Model) {
+    if (this.map && this.map.nativeElement && this.map.nativeElement.clientWidth > 0) {
       console.log('******DRAW******');
       console.log(this.map.nativeElement);
       let w = this.map.nativeElement.clientWidth;
       let h = this.map.nativeElement.clientHeight;
       console.log(`size = ${h} / ${w}`);
       console.log('****************');
-
       let graph = new joint.dia.Graph;
       let el = this.map.nativeElement;
       let paper = new joint.dia.Paper({
           el       : el,
-          width    : 200,//el.clientWidth = 0
-          height   : 200,//el.clientHeight = 0
+          width    : el.clientWidth,
+          height   : el.clientHeight,
           gridSize : 1,
           model    : graph,
           perpendicularLinks : true
@@ -75,18 +73,7 @@ export class ModelDetailDiagramPage {
        graph.addCell(rect);*/
 
        paper.scaleContentToFit();
-       paper.setOrigin(paper.options.origin["x"], 50);
-       console.log('done')
-       //this.loading.dismiss();
+       //paper.setOrigin(paper.options.origin["x"], 50);
     }
-
-  presentLoading() {
-    this.loading = Loading.create({
-      content: 'Drawing...',
-      duration: 5000});
-    this.nav.present(this.loading);
-    /*setTimeout(() => {
-      loading.dismiss();
-    }, 5000);*/
   }
 }

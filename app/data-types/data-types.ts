@@ -1,3 +1,5 @@
+/*******************************************************************************************/
+// SERVER
 export interface ServerParam {
   // This interface is necessary for use within Angular template syntax
   name  : string;
@@ -55,7 +57,11 @@ export class Block {
   public toJSONstring () : string {
     let output = {}
     this.params.forEach( param => {
-      output[param.name] = param.value;
+      switch (param.type) {
+        case 'boolean' : {output[param.name] = Boolean(param.value); break}
+        case 'number' : {output[param.name] = Number(param.value); break}
+        default : {output[param.name] = param.value; break}
+      }
     })
     return JSON.stringify(output);
   }
@@ -101,11 +107,11 @@ export class Model {
 // Find out how to use it in the ngSwitch directive
 export interface SimulationOutput {
   label   : string;
-  plotUrl : string;
+  plotUrl? : string;
+  filename? : string;
 }
 
 export class Simulation {
-  public outputs : SimulationOutput[] = []
 
   constructor (public simu_name : string,
                public info : any){}

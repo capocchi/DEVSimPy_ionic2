@@ -6,7 +6,7 @@ import { ModelService } from '../../providers/model-service/model-service';
 import { ModelDetailDiagramPage } from '../model-detail-diagram/model-detail-diagram';
 import { ModelDetailBlockPage } from '../model-detail-block/model-detail-block';
 import { ModelDetailSimulationPage } from '../model-detail-simulation/model-detail-simulation';
-import { SimuResultPage } from '../simu-result/simu-result';
+import { SimuReportPage } from '../simu-report/simu-report';
 
 @Page({
   templateUrl: 'build/pages/model-detail/model-detail.html'
@@ -15,29 +15,25 @@ export class ModelDetailPage {
   private tabModelDiagram;
   private tabModelBlock;
   private tabSimulation;
-  private tabSimuResult;
+  private tabSimuReport;
   @ViewChild('modelDetailTabs') tabRef: Tabs;
 
   constructor(private _modelService: ModelService,
               public nav: NavController,
               public navParams: NavParams) {
-    this.tabModelDiagram     = ModelDetailDiagramPage;
-    this.tabModelBlock       = ModelDetailBlockPage;
-    this.tabSimulation       = ModelDetailSimulationPage;
-    this.tabSimuResult       = SimuResultPage;
+    this.tabModelDiagram     = ModelDetailDiagramPage; //1
+    this.tabModelBlock       = ModelDetailBlockPage; //2
+    this.tabSimulation       = ModelDetailSimulationPage; //3
+    this.tabSimuReport       = SimuReportPage; //4
   }
 
-  onPageDidEnter() {
+  onPageWillEnter() {
     console.log("ENTER ModelDetailPage")
+    this._modelService.republishModel(); // trick for Diagram correct display
     let selectedPage = this.navParams.get('selectedPage');
-    console.log(selectedPage)
     if (selectedPage === 'Result') {
-      this.goToResultTab();
+      this.tabRef.select(4);
     }
-  }
-
-  goToResultTab() {
-    this.tabRef.select(4);
   }
 
   goBackHome() {

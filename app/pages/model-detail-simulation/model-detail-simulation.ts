@@ -12,19 +12,24 @@ export class ModelDetailSimulationPage {
   public simulatedDuration : number = 10;
   public selectedSimu       : Simulation = null;
   public selectedModelSimus : Array<Simulation> = [];
+  private _parentPage : ModelDetailPage;
+  private _simuSubscription;
+  private _simusSubscription;
 
   constructor(public nav: NavController,
-              private _simulationService : SimulationService) {
+              private _simulationService : SimulationService,
+              public navParams : NavParams) {
 
-    this._simulationService.selectedSimu$.subscribe(
+    this._parentPage = navParams.data;
+    this._simuSubscription = this._simulationService.selectedSimu$.subscribe(
       simu => {
         console.log('receive simu in ModelDetailSimulationPage')
         console.log(simu)
         this.selectedSimu = simu;
         this._simulationService.loadSimuList();
-    });
+      });
 
-    this._simulationService.simus$.subscribe(
+    this._simusSubscription = this._simulationService.simus$.subscribe(
       simus => {
         if (this.selectedSimu) {
           this.selectedModelSimus = simus.filter(simu => {
@@ -32,15 +37,19 @@ export class ModelDetailSimulationPage {
             // Do not display the simulation in progress
             // Display the current simulation if it is finished
             return simu.info.model_name === this.selectedSimu.info.model_name &&
-            (simu.simu_name !== this.selectedSimu.simu_name || simu.info.status ==='FINISHED');
-          });
-        }
-    });
+              (simu.simu_name !== this.selectedSimu.simu_name || simu.info.status ==='FINISHED');
+            });
+          }
+      });
   }
 
   public onPageWillEnter(){
-    console.log('enter ModelDetailSimulationPage')
+    console.log('enter ModelDetailSimulationPage');
     this.refreshSimu();
+  }
+
+  public onPageDidLeave() {
+    //this._simuSubscription.unsubscribe();
   }
 
   public startSimu() {
@@ -62,8 +71,7 @@ export class ModelDetailSimulationPage {
 
   public goToSimu(model_name : string, simulation_name : string) {
     this._simulationService.loadSimu(simulation_name, model_name);
-    this.nav.push(ModelDetailPage, {selectedPage:'Result'})
-    //this.nav.parent.selectedIndex = 4; // not working
+    this.nav.parent.select(4);
   }
 
   public deleteSimu(simulation_name : string) {

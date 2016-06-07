@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Http, Response, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from "rxjs/Rx";
+import {Subject, BehaviorSubject} from "rxjs/Rx";
 
-import {Simulation, Block} from '../../data-types/data-types';
+import {Simulation, Block, SimulationOutput} from '../../data-types/data-types';
 import {ConnectionService} from '../connection-service/connection-service';
 
 @Injectable()
@@ -34,7 +34,11 @@ export class SimulationService {
               private _connectionService: ConnectionService) {
     // Server is selected by the User :
     this._connectionService.server$.subscribe(
-      server => {this._simuEndPoint = `${server.url}/simulations`}
+      server => {
+        if (server) {
+          this._simuEndPoint = `${server.url}/simulations`
+        }
+      }
     );
   }
 
@@ -58,15 +62,16 @@ export class SimulationService {
   }
 
   public loadSimu(simuName : string, modelName : string) {
-    console.log("LOAD " + simuName + ' ' + modelName)
     if (simuName === "NOT_STARTED") {
       // store useful data = model_name
       let simu = new Simulation(simuName, {'model_name' : modelName, 'status' : "NOT_STARTED"});
+      console.log("LOAD NOT_STARTED " + simuName + ' ' + modelName)
       this._selectedSimuBS$.next(simu);
     } else {
       // initial value is replaced as soon as UpdateSimu returns a response
       let simu = new Simulation(simuName, {'model_name' : modelName, 'status' : "LOADING"});
       this._selectedSimuBS$.next(simu);
+      console.log("LOADING " + simuName + ' ' + modelName)
       this.updateSimu(simuName);
     }
   }
@@ -99,11 +104,12 @@ export class SimulationService {
   }
 
   public updateSimu(simuName) {
-    if (simuName !== 'NOT_STARTED' && simuName !== 'FINISHED') {
+    if (simuName !== 'NOT_STARTED') {
       this._http.get(`${this._simuEndPoint}/${simuName}`)
         .subscribe(response => {
           let xSimu = response.json();
           if (xSimu.simulation_name === this._selectedSimuBS$.getValue().simu_name) {
+            console.log("UPDATE SIMU FROM WS")
             this._selectedSimuBS$.next(new Simulation(xSimu.simulation_name, xSimu.info));
           }
         });
@@ -158,24 +164,38 @@ export class SimulationService {
 
   }
 
-  public getSelectedSimuOutputs() {
-    let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/outputs`;
-    this._http.get(url).subscribe(
-      response => {
-        console.log(this._selectedSimuBS$.getValue().simu_name)
-        let jsonResponse = response.json();
-        console.log(jsonResponse)
-        console.log(jsonResponse.outputs)
-        if (jsonResponse.success) {
+  /*public getSelectedSimuLiveResults() : Promise<Array<SimulationOutput>> {
+    if (this._selectedSimuBS$.getValue().info.status === 'RUNNING' || this._selectedSimuBS$.getValue().info.status === 'PAUSED') {
+      // Get the URL for streaming outputs from simulation in execution
+      let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/outputs`;
+
+      return this._http.get(url).map(
+        response => {
+          let jsonResponse = response.json();
           if (jsonResponse.simulation_name === this._selectedSimuBS$.getValue().simu_name) {
-            this._selectedSimuBS$.getValue().outputs = jsonResponse.outputs;
-            this._selectedSimuBS$.next(this._selectedSimuBS$.getValue());
-            console.log(this._selectedSimuBS$.getValue())
+            if (jsonResponse.success) {
+              console.log('--> outputs')
+              return jsonResponse.outputs;
+            }
+            else if (jsonResponse.info === 'SOCKET_ERROR'){
+              console.log('--> SOCKET_ERROR')
+              // SOCKET_ERROR is returned as long as the simulation is in iniatialization phase
+              // Request until successful response is received
+              // TBC : prevent too many requests?
+              return this.getSelectedSimuLiveResults();
+            }
           }
-        }
-      }
-    )
-  }
+      }).toPromise();
+    }
+  }*/
+
+  public pollForLiveResultsUrl(stopPolling) : Observable<Response> {
+    let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/outputs`;
+    return Observable
+         .interval(500)
+         .flatMap((v,i) => {return this._http.get(url)})
+         .takeUntil(stopPolling);
+       }
 
   public deleteSimu(simuName : string) {
     // PUT request for kill has an empty body
@@ -184,6 +204,12 @@ export class SimulationService {
         console.log(response);
         this.loadSimuList();
       });
+  }
+
+  public getResultFileAsJSON(simuName : string, filename : string) : Observable<any> {
+    // URL for downloading result file as JSON
+    let url = `${this._simuEndPoint}/${simuName}/results/${filename}/0`;//TODO handle bigger files
+    return this._http.get(url);
   }
 
   private handleError (error: Response) {

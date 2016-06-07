@@ -3,9 +3,6 @@
 </ion-navbar>
 
 <ion-content padding class="model-detail-diagram">
-  <ion-card>
-    <ion-card-content #map class="joint-map">
-    </ion-card-content>
-  </ion-card>
+  <div #map class="joint-map"></div>
   <ion-label>{{ (_modelService.selectedModel$ | async)?.description }}</ion-label>
 </ion-content>
