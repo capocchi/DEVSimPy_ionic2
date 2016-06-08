@@ -1,6 +1,6 @@
 import {Page, NavController, NavParams} from 'ionic-angular';
 import { SimulationService } from '../../providers/simulation-service/simulation-service';
-//import { PusherResultService } from '../../providers/pusher-result-service/pusher-result-service';
+import { PusherService } from '../../providers/pusher-service/pusher-service';
 import { Simulation } from '../../data-types/data-types';
 import { ModelDetailPage } from '../model-detail/model-detail';
 
@@ -12,21 +12,24 @@ export class ModelDetailSimulationPage {
   public simulatedDuration : number = 10;
   public selectedSimu       : Simulation = null;
   public selectedModelSimus : Array<Simulation> = [];
-  private _parentPage : ModelDetailPage;
   private _simuSubscription;
   private _simusSubscription;
+  private _progress : number = 50;
 
   constructor(public nav: NavController,
+              public navParams : NavParams,
               private _simulationService : SimulationService,
-              public navParams : NavParams) {
+              private _pusherService : PusherService) {
 
-    this._parentPage = navParams.data;
     this._simuSubscription = this._simulationService.selectedSimu$.subscribe(
       simu => {
         console.log('receive simu in ModelDetailSimulationPage')
         console.log(simu)
         this.selectedSimu = simu;
         this._simulationService.loadSimuList();
+        if (simu.info.status === 'RUNNING') {
+          this._pusherService.listen(simu.simu_name);
+        }
       });
 
     this._simusSubscription = this._simulationService.simus$.subscribe(
@@ -53,12 +56,10 @@ export class ModelDetailSimulationPage {
   }
 
   public startSimu() {
-    //this._pusherService.listen();
     this._simulationService.start(this.simulatedDuration);}
 
   public refreshSimu() {
-    this._simulationService.updateSelectedSimu();
-  }
+    this._simulationService.updateSelectedSimu();}
 
   public pauseSimu() {
     this._simulationService.pauseSelectedSimu();}

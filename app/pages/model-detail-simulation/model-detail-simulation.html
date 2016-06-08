@@ -5,22 +5,26 @@
 <ion-content padding class="model-detail-simulation">
 
   <ion-card *ngIf="selectedSimu?.info.status === 'NOT_STARTED' || selectedSimu?.info.status === 'FINISHED'">
+    <ion-card-header>NEW SIMULATION</ion-card-header>
     <ion-card-content>
       <ion-item>
         <ion-label fixed>Duration</ion-label>
         <ion-input type="number" [(ngModel)]="simulatedDuration"></ion-input>
       </ion-item>
-      <button block default (click)="startSimu()">START NEW SIMULATION</button>
+      <button block default (click)="startSimu()">START</button>
     </ion-card-content>
   </ion-card>
 
-  <ion-card *ngIf="selectedSimu?.info.status !== 'NOT_STARTED' && selectedSimu?.info.status !== 'FINISHED'">
+  <ion-card *ngIf="selectedSimu?.info.status === 'RUNNING' || selectedSimu?.info.status === 'PAUSED'">
     <ion-card-content>
-      <ion-label>{{selectedSimu?.info.date}}</ion-label>
+      <ion-card-header>CURRENT SIMULATION</ion-card-header>
+      <!--ion-label>{{selectedSimu?.info.date}}</ion-label>
       <ion-label>{{selectedSimu?.info.simulated_duration}}</ion-label>
       <ion-badge class="badge badge-{{selectedSimu?.toColor()}}">
         {{selectedSimu?.info.status}}
-      </ion-badge>
+      </ion-badge-->
+
+      <progress max="100" [value]="_pusherService.progress$ | async"></progress>
 
       <button block *ngIf="selectedSimu?.info.status==='RUNNING'" (click)="pauseSimu()"><ion-icon name="pause"></ion-icon></button>
       <button block *ngIf="selectedSimu?.info.status==='RUNNING'" (click)="refreshSimu()"><ion-icon name="refresh"></ion-icon></button>
@@ -28,22 +32,25 @@
 
       <button block *ngIf="selectedSimu?.info.status==='PAUSED'" (click)="resumeSimu()"><ion-icon name="play"></ion-icon></button>
       <button block *ngIf="selectedSimu?.info.status==='PAUSED'" (click)="killSimu()"><ion-icon name="close-circle"></ion-icon></button>
-
     </ion-card-content>
   </ion-card>
 
-  <ion-card *ngFor="let simu of selectedModelSimus" >
-      <ion-card-header ion-item>
-          {{simu.info.model_name | uppercase}}
+  <ion-card>
+    <ion-card-header>SIMULATIONS HISTORY</ion-card-header>
+    <ion-card-content>
+      <!--button block>HISTORY</button-->
+      <ion-list>
+        <ion-item *ngFor="let simu of selectedModelSimus" >
+          <h2>{{simu.info.model_name | uppercase}}</h2>
           <button item-left (click)="deleteSimu(simu.simu_name)"><ion-icon name="trash"></ion-icon></button>
           <button item-right (click)="goToSimu(simu.info.model_name, simu.simu_name)"><ion-icon name="eye"></ion-icon></button>
-      </ion-card-header>
-      <ion-card-content ion-item>
           {{ simu.info.date }}
           <ion-badge item-right class="badge badge-{{simu.toColor()}}">
             {{ simu.info.status }}
           </ion-badge>
-      </ion-card-content>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
   </ion-card>
 
 </ion-content>
