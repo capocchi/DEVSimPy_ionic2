@@ -8,15 +8,15 @@
       <ion-list *ngIf="_blockLocalCopy">
         <ion-item *ngFor="let param of _blockLocalCopy.params">
           <ion-label fixed>{{param.name | uppercase}}</ion-label>
-          <!--ion-label>{{param.value}}</ion-label-->
           <ion-input *ngIf="param.type!=='image'" type="text" [(ngModel)]="param.value"></ion-input>
           <ion-thumbnail item-right *ngIf="param.type==='image'"><img [src]="param.value"></ion-thumbnail>
-          <button clear item-right (click)="showPhoneInputs(param)"><ion-icon name="phone-portrait"></ion-icon></button>
+          <button clear item-right *ngIf="param.type==='image'" (click)="takePicture(param)"><ion-icon name="camera"></ion-icon></button>
+          <button clear item-right *ngIf="param.type==='number'" (click)="showLocation(param)"><ion-icon name="compass"></ion-icon></button>
         </ion-item>
       </ion-list>
     </ion-card-content>
   </ion-card>
-  <button block *ngIf="(_simulationService.selectedSimu$ | async)?.info.status === 'NOT_STARTED'" (click)="saveParam()">SAVE</button>
+  <button block *ngIf="(_simulationService.selectedSimu$ | async)?.info.status === 'NOT_STARTED' || (_simulationService.selectedSimu$ | async)?.info.status === 'FINISHED'" (click)="saveParam()">SAVE</button>
   <button block *ngIf="(_simulationService.selectedSimu$ | async)?.info.status === 'PAUSED'" (click)="modifyParam()">MODIFY</button>
 
 </ion-content>

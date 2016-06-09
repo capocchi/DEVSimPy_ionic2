@@ -31,20 +31,19 @@ export class ModelDetailParamPage {
   }
 
   saveParam(){
-    //console.log("save params");
     this._modelService.saveModelParameters(this._blockLocalCopy).then(
       text => {this.displayAlert(text)}
     );
   }
 
   modifyParam(){
-    //console.log("modify params");
     this._simulationService.modifyModelParameters(this._blockLocalCopy).then(
       text => {this.displayAlert(text)}
     );
   }
 
-  public showPhoneInputs(param : BlockParam){
+  /* Menu to select between possible phone inputs */
+  /*public showPhoneInputs(param : BlockParam){
     let alert = Alert.create();
 
     alert.setTitle('Select phone input');
@@ -64,7 +63,7 @@ export class ModelDetailParamPage {
     });
 
     this.nav.present(alert);
-  }
+  }*/
 
   public showLocation(param : BlockParam){
 

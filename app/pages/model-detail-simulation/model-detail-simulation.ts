@@ -3,8 +3,6 @@ import { SimulationService } from '../../providers/simulation-service/simulation
 import { PusherService } from '../../providers/pusher-service/pusher-service';
 import { Simulation, SimulationOutput } from '../../data-types/data-types';
 import { ModelDetailPage } from '../model-detail/model-detail';
-import {ResultUrlPage} from '../result-url/result-url';
-import {ResultFilePage} from '../result-file/result-file';
 import {Subject} from "rxjs/Rx";
 
 @Page({
@@ -27,10 +25,10 @@ export class ModelDetailSimulationPage {
               private _simulationService : SimulationService,
               private _pusherService : PusherService) {
 
-    console.log('CREATE ModelDetailSimulationPage')
+    //console.log('CREATE ModelDetailSimulationPage')
     this._simuSubscription = this._simulationService.selectedSimu$.subscribe(
           simu => {
-            console.log('UPDATE SIMU in ModelDetailSimulationPage ' + simu.simu_name + ' '+simu.info.status)
+            //console.log('UPDATE SIMU in ModelDetailSimulationPage ' + simu.simu_name + ' '+simu.info.status)
             this._simuIsAlive = simu.info.status === 'RUNNING' || simu.info.status === 'PAUSED';
             // Start listening on Pusher channel
             // upon selected simulation modification
@@ -54,8 +52,7 @@ export class ModelDetailSimulationPage {
           setTimeout(() => {
             this.refreshSimu();
             // Switch to result tab
-            console.log("SWITCH to 5 on progress 100% reception in ModelDetailSimulationPage")
-            this.nav.parent.select(5);
+            //this.nav.parent.select(5);
           }, 500);
         }
       }

@@ -40,8 +40,10 @@
 
   <!-- FINISHED SIMULATION REPORT -->
   <ion-card *ngIf="_selectedSimu?.info.status === 'FINISHED'">
-    <ion-card-header>SIMULATION REPORT</ion-card-header>
+    <button block class="button button-block button-{{_selectedSimu.toColor()}}">SIMULATION REPORT</button>
     <ion-card-content>
+      <!--ion-badge *ngIf="_selectedSimu?.info.report.success" class="badge badge-{{_selectedSimu.toColor()}}">SUCCESS</ion-badge>
+      <ion-badge *ngIf="!_selectedSimu?.info.report.success" class="badge badge-{{_selectedSimu.toColor()}}">FAILED</ion-badge-->
       <ion-list>
         <ion-item light (click)="showReport()">
           Simulation Report
@@ -65,11 +67,17 @@
         <div *ngIf="_showReport">
           {{_selectedSimu?.info.report?.summary}}
         </div>
-        <ion-item *ngIf="_showReport && !_selectedSimu?.info.report.success">
+        <ion-item *ngIf="_showReport">
           <h5>Execution Log</h5>
         </ion-item>
-        <div *ngIf="_showReport && !_selectedSimu?.info.report.success">
+        <div *ngIf="_showReport">
           {{_selectedSimu?.info.log}}
+        </div>
+        <ion-item *ngIf="_showReport && !_selectedSimu?.info.report.success">
+          <h5>Error</h5>
+        </ion-item>
+        <div *ngIf="_showReport && !_selectedSimu?.info.report.success">
+          {{_selectedSimu?.info.error}}
         </div>
       </ion-list>
     </ion-card-content>

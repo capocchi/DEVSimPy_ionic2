@@ -61,8 +61,7 @@ export class ModelDetailSimuResultPage {
                 this._plotUrl = results[0].plotUrl;
                 this._label = results[0].label;
                 // Force switch to Result Tab
-                console.log("SWITCH to 5 on Pusher LiveResults reception in ModelDetailSimuResultPage")
-                this.nav.parent.select(5);
+                //this.nav.parent.select(5);
                 this.startSpinner();
               }
             }
@@ -85,10 +84,12 @@ export class ModelDetailSimuResultPage {
           }
           if (this._resultsFile.length > 0) {
             this._resultsFile.forEach(result => {result.checked = true;});
-            this.getResultAndDrawGraph();
+            if (this.graph) {this.getResultAndDrawGraph();}
           }
-          this._label   = simu.info.report.output[0].label;
-          this.startSpinner();
+          if (simu.info.report.output.length > 0) {
+            this._label  = simu.info.report.output[0].label;
+            this.startSpinner();
+          }
         }
 
         this._selectedSimu = simu;

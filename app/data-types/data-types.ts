@@ -119,12 +119,12 @@ export class Simulation {
 
   public toColor() : string {
     let xStatus = this.info.status;
-    let xcode   = this.info.exit_code;
+    let success = this.info.report.success;
     let color   = 'primary'
     if (xStatus === "RUNNING") {color = 'secondary'} // green
     else if (xStatus === "PAUSED") {color = 'light'} // grey
     else if (xStatus === "FINISHED") {
-      if (xcode == 0) {color = 'primary'} // blue
+      if (success) {color = 'primary'} // blue
       else {color = 'danger'} // red
     }
     return color;
