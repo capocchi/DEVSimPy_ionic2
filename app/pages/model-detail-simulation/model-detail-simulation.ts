@@ -1,8 +1,11 @@
 import {Page, NavController, NavParams} from 'ionic-angular';
 import { SimulationService } from '../../providers/simulation-service/simulation-service';
 import { PusherService } from '../../providers/pusher-service/pusher-service';
-import { Simulation } from '../../data-types/data-types';
+import { Simulation, SimulationOutput } from '../../data-types/data-types';
 import { ModelDetailPage } from '../model-detail/model-detail';
+import {ResultUrlPage} from '../result-url/result-url';
+import {ResultFilePage} from '../result-file/result-file';
+import {Subject} from "rxjs/Rx";
 
 @Page({
   templateUrl: 'build/pages/model-detail-simulation/model-detail-simulation.html',
@@ -10,51 +13,72 @@ import { ModelDetailPage } from '../model-detail/model-detail';
 export class ModelDetailSimulationPage {
 
   public simulatedDuration : number = 10;
-  public selectedSimu       : Simulation = null;
-  public selectedModelSimus : Array<Simulation> = [];
+  private _selectedSimu       : Simulation = null;
   private _simuSubscription;
-  private _simusSubscription;
-  private _progress : number = 50;
+  private _pusherSubscription;
+
+  private _showReport = false;
+  private _showSummary = false;
+  private _simuIsAlive = false;
+  private _progress = 0;
 
   constructor(public nav: NavController,
               public navParams : NavParams,
               private _simulationService : SimulationService,
               private _pusherService : PusherService) {
 
+    console.log('CREATE ModelDetailSimulationPage')
     this._simuSubscription = this._simulationService.selectedSimu$.subscribe(
-      simu => {
-        console.log('receive simu in ModelDetailSimulationPage')
-        console.log(simu)
-        this.selectedSimu = simu;
-        this._simulationService.loadSimuList();
-        if (simu.info.status === 'RUNNING') {
-          this._pusherService.listen(simu.simu_name);
-        }
-      });
+          simu => {
+            console.log('UPDATE SIMU in ModelDetailSimulationPage ' + simu.simu_name + ' '+simu.info.status)
+            this._simuIsAlive = simu.info.status === 'RUNNING' || simu.info.status === 'PAUSED';
+            // Start listening on Pusher channel
+            // upon selected simulation modification
+            // or simulation start (name changes from NOT_STARTED to server defined id)
+            if (!this._selectedSimu || simu.simu_name !== this._selectedSimu.simu_name) {
+                 this._pusherService.listen(simu.simu_name);
+              }
+            // Update current simu
+            this._selectedSimu = simu;
+            }
+          );
 
-    this._simusSubscription = this._simulationService.simus$.subscribe(
-      simus => {
-        if (this.selectedSimu) {
-          this.selectedModelSimus = simus.filter(simu => {
-            // Display simulations for the selectedModel
-            // Do not display the simulation in progress
-            // Display the current simulation if it is finished
-            return simu.info.model_name === this.selectedSimu.info.model_name &&
-              (simu.simu_name !== this.selectedSimu.simu_name || simu.info.status ==='FINISHED');
-            });
-          }
-      });
+    this._pusherSubscription = this._pusherService.progress$.subscribe(
+      progress => {
+        console.log('UPDATE PROGRESS in ModelDetailSimulationPage');
+        this._progress = progress;
+        if (progress === 100) {
+          console.log('100%')
+          // There might be a delay between the reception of the 100% completion information
+          // and the simulation process being really FINISHED (and returning results)
+          setTimeout(() => {
+            this.refreshSimu();
+            // Switch to result tab
+            console.log("SWITCH to 5 on progress 100% reception in ModelDetailSimulationPage")
+            this.nav.parent.select(5);
+          }, 500);
+        }
+      }
+    )
+
   }
 
   public onPageWillEnter(){
-    console.log('enter ModelDetailSimulationPage');
-    this.refreshSimu();
+    console.log('ENTER ModelDetailSimulationPage --> REFRESH');
+    if (this._selectedSimu.info.status !== 'FINISHED') {
+        this.refreshSimu();
+    }
   }
 
-  public onPageDidLeave() {
-    //this._simuSubscription.unsubscribe();
-  }
+  /*public onPageDidLeave() {
+    console.log('LEAVE ModelDetailSimulationPage');
+  }*/
 
+  public ngOnDestroy() {
+    console.log('DESTROY ModelDetailSimulationPage');
+    this._simuSubscription.unsubscribe();
+    this._pusherSubscription.unsubscribe();
+  }
   public startSimu() {
     this._simulationService.start(this.simulatedDuration);}
 
@@ -70,13 +94,37 @@ export class ModelDetailSimulationPage {
   public killSimu() {
     this._simulationService.killSelectedSimu();}
 
-  public goToSimu(model_name : string, simulation_name : string) {
-    this._simulationService.loadSimu(simulation_name, model_name);
-    this.nav.parent.select(4);
+  /*public goToResultUrl(output : SimulationOutput){
+    this.nav.parent.select(5);
+
+    if (output.plotUrl) {
+      this.nav.push(ResultUrlPage,
+                    {modelName   : this._selectedSimu.info.model_name,
+                     resultLabel : output.label,
+                     plotUrl     : output.plotUrl})
+    }
+  }*/
+
+  /*public goToResultFile(){
+    this.nav.parent.select(5);
+    //console.log(this._selectedSimu.info.report.output)
+    let listOfDisplayedResults = [];
+    this._selectedSimu.info.report.output.forEach(
+      o => {if (o.checked) {
+        listOfDisplayedResults.push(o)}}
+    );
+    this.nav.push(ResultFilePage,
+                  {modelName   : this._selectedSimu.info.model_name,
+                   simuName     : this._selectedSimu.simu_name,
+                   results     : listOfDisplayedResults});
+  }*/
+
+  public showReport(){
+    this._showReport = !this._showReport;
   }
 
-  public deleteSimu(simulation_name : string) {
-    this._simulationService.deleteSimu(simulation_name);
+  public showSummary(){
+    this._showSummary = !this._showSummary;
   }
 
 }

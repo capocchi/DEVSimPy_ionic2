@@ -17,7 +17,7 @@ export class HomePage {
     this.tabModelList = ModelListPage;
     this.tabSimuList  = SimulationListPage;
     this.tabSettings  = SettingsPage;
-    console.log("init Home")
+    //console.log("init Home")
   }
 
 }

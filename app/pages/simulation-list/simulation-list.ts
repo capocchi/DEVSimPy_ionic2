@@ -14,7 +14,7 @@ export class SimulationListPage {
   }
 
   onPageWillEnter() {
-    console.log("enter SimuList");
+    //console.log("enter SimuList");
     this._simulationService.loadSimuList();
   }
 

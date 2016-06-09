@@ -30,7 +30,7 @@ export class ConnectionService {
 
   constructor(private _http: Http) {
     this._localStorage = new Storage(LocalStorage);
-    console.log("init connection-service")
+    //console.log("init connection-service")
   }
 
   loadStoredServers() {
@@ -57,14 +57,14 @@ export class ConnectionService {
     if (serverUrl === '' && this._serverBS$.getValue()) {
       serverUrl = this._serverBS$.getValue().url;
     }
-    console.log("send request to " + serverUrl)
+    //console.log("send request to " + serverUrl)
     // Check URL before storing it
     return this._http.get(`${serverUrl}/info`)
     .map(
       response => {
         if (response.status === 200) {
-          console.log('info = ')
-          console.log(response.json());
+          //console.log('info = ')
+          //console.log(response.json());
           // Update the list of stored servers if needed
           let serverIndex = this._storedServersBS$.getValue().findIndex(url => { return url === serverUrl })
           if (serverIndex < 0) {
@@ -82,10 +82,10 @@ export class ConnectionService {
           return s;
         }
         else {
-          console.log('Invalid response status');
+          //console.log('Invalid response status');
           let s = new Server(serverUrl, false, response);
           this._serverBS$.next(s);
-          console.log(response);
+          //console.log(response);
           return s;
         }
       }

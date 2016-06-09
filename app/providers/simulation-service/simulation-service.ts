@@ -55,7 +55,7 @@ export class SimulationService {
           }
           // publish new list
           this._simusBS$.next(simuStore);
-          console.log(this._simusBS$.getValue())
+          //console.log(this._simusBS$.getValue())
       },
       error => this.handleError(error)
     );
@@ -65,13 +65,13 @@ export class SimulationService {
     if (simuName === "NOT_STARTED") {
       // store useful data = model_name
       let simu = new Simulation(simuName, {'model_name' : modelName, 'status' : "NOT_STARTED"});
-      console.log("LOAD NOT_STARTED " + simuName + ' ' + modelName)
+      //console.log("LOAD NOT_STARTED " + simuName + ' ' + modelName)
       this._selectedSimuBS$.next(simu);
     } else {
       // initial value is replaced as soon as UpdateSimu returns a response
       let simu = new Simulation(simuName, {'model_name' : modelName, 'status' : "LOADING"});
       this._selectedSimuBS$.next(simu);
-      console.log("LOADING " + simuName + ' ' + modelName)
+      //console.log("LOADING " + simuName + ' ' + modelName)
       this.updateSimu(simuName);
     }
   }
@@ -109,7 +109,7 @@ export class SimulationService {
         .subscribe(response => {
           let xSimu = response.json();
           if (xSimu.simulation_name === this._selectedSimuBS$.getValue().simu_name) {
-            console.log("UPDATE SIMU FROM WS")
+            //console.log("UPDATE SIMU FROM WS")
             this._selectedSimuBS$.next(new Simulation(xSimu.simulation_name, xSimu.info));
           }
         });
@@ -124,7 +124,7 @@ export class SimulationService {
     // PUT request for pause has an empty body
     this._http.put(`${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/pause`, '')
       .subscribe(response => {
-        console.log(response);
+        //console.log(response);
         this.updateSimu(response.json().simulation_name);
       });
   }
@@ -133,7 +133,7 @@ export class SimulationService {
     // PUT request for resume has an empty body
     this._http.put(`${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/resume`, '')
       .subscribe(response => {
-        console.log(response);
+        //console.log(response);
         this.updateSimu(response.json().simulation_name);
       });
   }
@@ -142,7 +142,7 @@ export class SimulationService {
     // PUT request for kill has an empty body
     this._http.put(`${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/kill`, '')
       .subscribe(response => {
-        console.log(response);
+        //console.log(response);
         this.updateSimu(response.json().simulation_name);
       });
   }
@@ -150,7 +150,7 @@ export class SimulationService {
   public modifyModelParameters (block : Block) : Promise<string> {
     let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/atomics/${block.label}/params`;
     let body = block.toJSONstring();
-    console.log(body);
+    //console.log(body);
     let headers = new Headers();
     headers.append('Content-Type','application/json; charset=utf-8');
     return this._http.put(url, body, {headers : headers})
@@ -161,47 +161,13 @@ export class SimulationService {
         }
         return alertText;} )
       .toPromise();
-
   }
-
-  /*public getSelectedSimuLiveResults() : Promise<Array<SimulationOutput>> {
-    if (this._selectedSimuBS$.getValue().info.status === 'RUNNING' || this._selectedSimuBS$.getValue().info.status === 'PAUSED') {
-      // Get the URL for streaming outputs from simulation in execution
-      let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/outputs`;
-
-      return this._http.get(url).map(
-        response => {
-          let jsonResponse = response.json();
-          if (jsonResponse.simulation_name === this._selectedSimuBS$.getValue().simu_name) {
-            if (jsonResponse.success) {
-              console.log('--> outputs')
-              return jsonResponse.outputs;
-            }
-            else if (jsonResponse.info === 'SOCKET_ERROR'){
-              console.log('--> SOCKET_ERROR')
-              // SOCKET_ERROR is returned as long as the simulation is in iniatialization phase
-              // Request until successful response is received
-              // TBC : prevent too many requests?
-              return this.getSelectedSimuLiveResults();
-            }
-          }
-      }).toPromise();
-    }
-  }*/
-
-  public pollForLiveResultsUrl(stopPolling) : Observable<Response> {
-    let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/outputs`;
-    return Observable
-         .interval(500)
-         .flatMap((v,i) => {return this._http.get(url)})
-         .takeUntil(stopPolling);
-       }
 
   public deleteSimu(simuName : string) {
     // PUT request for kill has an empty body
     this._http.delete(`${this._simuEndPoint}/${simuName}`)
       .subscribe(response => {
-        console.log(response);
+        //console.log(response);
         this.loadSimuList();
       });
   }
@@ -220,31 +186,30 @@ export class SimulationService {
   }
 }
 
-// Automicaly generated Service class
-/*export class SimulationService {
-  data: any = null;
-
-  constructor(public http: Http) {}
-
-  load() {
-    if (this.data) {
-      // already loaded data
-      return Promise.resolve(this.data);
+/* POLLING EXAMPLE */
+//**********************************************/
+/*
+public pollForLiveResultsUrl(stopPolling) : Observable<Response> {
+  let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/outputs`;
+  return Observable
+       .interval(500)
+       .flatMap((v,i) => {return this._http.get(url)})
+       .takeUntil(stopPolling);
+     }*/
+/* And on the consummer side :*/
+//*****************************/
+/*let stopPolling   = new Subject();
+let nbPoll        = 0;
+this._liveResults = [];
+this._simulationService.pollForLiveResultsUrl(stopPolling).subscribe(
+  response => {
+    nbPoll++;
+    let jsonResponse = response.json();
+    if (jsonResponse.success) {
+      this._liveResults = jsonResponse.outputs;
+      stopPolling.next(true);
     }
-
-    // don't have the data yet
-    return new Promise(resolve => {
-      // We're using Angular Http provider to request the data,
-      // then on the response it'll map the JSON data to a parsed JS object.
-      // Next we process the data and resolve the promise with the new data.
-      this.http.get('path/to/data.json')
-        .map(res => res.json())
-        .subscribe(data => {
-          // we've got back the raw data, now generate the core schedule data
-          // and save the data for later reference
-          this.data = data;
-          resolve(this.data);
-        });
-    });
-  }
-}*/
+    if (nbPoll>10) {
+      stopPolling.next(true);
+    }
+  });*/

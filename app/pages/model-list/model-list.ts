@@ -17,13 +17,14 @@ export class ModelListPage {
   }
 
   onPageWillEnter() {
-    console.log("enter ModelList");
+    //console.log("enter ModelList");
     this._modelService.loadModelsFromWS();
   }
 
   goToModel(model_name : string) {
     this._simulationService.loadSimu("NOT_STARTED", model_name);
     this._modelService.loadModel(model_name);
+    console.log('PUSH ModelDetailPage')
     this._nav.push(ModelDetailPage);
   }
 

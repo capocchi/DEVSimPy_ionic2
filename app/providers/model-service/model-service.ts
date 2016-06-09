@@ -60,8 +60,9 @@ export class ModelService {
     this._connectionService.server$.subscribe(
       server => {
         if (server) {
-          this._modelsEndPoint = `${server.url}/models`; console.log(this._modelsEndPoint)}
+          this._modelsEndPoint = `${server.url}/models`;
         }
+      }
     );
 
     // Update from server is done when the page is entered
@@ -117,7 +118,7 @@ export class ModelService {
     // If model representation is empty (either never loaded or outdated)
     // then get up-to-date representation from server
     if (this._modelStore[this._selectedModelIndex].cells.length === 0) {
-      console.log('get from WS')
+      //console.log('get from WS')
       // Expect response as JSON <==> Accept = application/json
       let headers = new Headers();
       headers.append('Accept','application/json');
@@ -136,7 +137,7 @@ export class ModelService {
         );
     }
     else {
-      console.log('model already loaded')
+      //console.log('model already loaded')
     }
   }
 
@@ -174,7 +175,7 @@ export class ModelService {
     }
     return fileTransfer.upload(img, encodeURI(url), options)
     .then (response => {
-      console.log(response);
+      //console.log(response);
       let filename = JSON.parse(response.response).image_filename;
       return `${url}/${filename}`;
     });

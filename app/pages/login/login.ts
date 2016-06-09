@@ -14,13 +14,13 @@ export class LoginPage {
               private _connectionService: ConnectionService) {}
 
   onPageWillEnter() {
-    console.log('enter SettingsPage')
+    //console.log('enter SettingsPage')
     this._connectionService.loadStoredServers();
     this._connectionService.loadLastUsedServer();
   }
 
   selectServer() {
-    console.log("select " + this._userServer);
+    //console.log("select " + this._userServer);
     this._connectionService.checkAndConnectServer(this._userServer).then(
       server => {
         if (server.isConnected) {
@@ -52,6 +52,6 @@ export class LoginPage {
   }
 
   private displayInfo(o) {
-    console.log(o)
+    //console.log(o)
   }
 }

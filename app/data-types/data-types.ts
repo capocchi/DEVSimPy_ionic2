@@ -109,6 +109,7 @@ export interface SimulationOutput {
   label   : string;
   plotUrl? : string;
   filename? : string;
+  checked? : boolean;
 }
 
 export class Simulation {

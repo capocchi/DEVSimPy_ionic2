@@ -21,7 +21,7 @@ export class ModelDetailDiagramPage {
     console.log('CREATE ModelDetailDiagramPage')
     this._modelSubscription = this._modelService.selectedModel$.subscribe(
       data  => {
-        console.log("receive new model in ModelDetailDiagramPage");
+        //console.log("receive new model in ModelDetailDiagramPage");
         this.draw(data);
       },
       error => console.log(error)
@@ -32,6 +32,10 @@ export class ModelDetailDiagramPage {
     console.log('ENTER ModelDetailDiagramPage')
   }
 
+  onPageDidUnload(){
+    console.log('UNLOAD ModelDetailDiagramPage')
+  }
+
   ngOnDestroy() {
     console.log("DESTROY ModelDetailDiagramPage");
     this._modelSubscription.unsubscribe(); // TBC utile ?
@@ -39,12 +43,12 @@ export class ModelDetailDiagramPage {
 
   draw (model : Model) {
     if (this.map && this.map.nativeElement && this.map.nativeElement.clientWidth > 0) {
-      console.log('******DRAW******');
-      console.log(this.map.nativeElement);
+      //console.log('******DRAW******');
+      //console.log(this.map.nativeElement);
       let w = this.map.nativeElement.clientWidth;
       let h = this.map.nativeElement.clientHeight;
-      console.log(`size = ${h} / ${w}`);
-      console.log('****************');
+      //console.log(`size = ${h} / ${w}`);
+      //console.log('****************');
       let graph = new joint.dia.Graph;
       let el = this.map.nativeElement;
       let paper = new joint.dia.Paper({

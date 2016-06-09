@@ -31,14 +31,14 @@ export class ModelDetailParamPage {
   }
 
   saveParam(){
-    console.log("save params");
+    //console.log("save params");
     this._modelService.saveModelParameters(this._blockLocalCopy).then(
       text => {this.displayAlert(text)}
     );
   }
 
   modifyParam(){
-    console.log("modify params");
+    //console.log("modify params");
     this._simulationService.modifyModelParameters(this._blockLocalCopy).then(
       text => {this.displayAlert(text)}
     );
@@ -81,7 +81,7 @@ export class ModelDetailParamPage {
         alert.addButton({
           text: 'OK',
           handler: data => {
-            console.log('Checkbox data:', data);
+            //console.log('Checkbox data:', data);
             switch (data[0]){
               case 'latitude': {param.value = position.coords.latitude; break;}
               case 'longitude': {param.value = position.coords.longitude; break;}
@@ -116,12 +116,12 @@ export class ModelDetailParamPage {
 
         this._modelService.uploadPicture(img, this._blockLocalCopy.label)
         .then (response => {
-          console.log(response);
+          //console.log(response);
           param.type = 'image';
           param.value = response;
         })
         .catch (error => {
-          console.log(error);
+          //console.log(error);
           this.displayAlert("Image upload failed.")
         });
 
