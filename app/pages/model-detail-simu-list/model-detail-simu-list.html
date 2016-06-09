@@ -1,0 +1,24 @@
+<ion-navbar *navbar>
+  <ion-title>{{selectedSimu?.info.model_name}}</ion-title>
+</ion-navbar>
+
+<ion-content padding class="model-detail-simu-list">
+
+    <ion-list>
+
+      <ion-card *ngFor="let simu of selectedModelSimus">
+          <ion-card-header ion-item>
+              {{simu.info.model_name | uppercase}}
+              <button item-left (click)="deleteSimu(simu.simu_name)"><ion-icon name="trash"></ion-icon></button>
+              <button item-right (click)="goToSimu(simu.info.model_name, simu.simu_name)"><ion-icon name="eye"></ion-icon></button>
+          </ion-card-header>
+          <ion-card-content ion-item>
+              {{ simu.info.date }}
+              <ion-badge item-right class="badge badge-{{simu.toColor()}}">
+                {{ simu.info.status }}
+              </ion-badge>
+          </ion-card-content>
+      </ion-card>
+    </ion-list>
+
+</ion-content>
