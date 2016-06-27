@@ -12,6 +12,8 @@ export class ModelDetailParamPage {
 
   private _blockLabel: String;
   private _blockLocalCopy: Block;
+  private _modelSubscription;
+
 
   constructor(public nav: NavController,
               public navParams: NavParams,
@@ -22,7 +24,7 @@ export class ModelDetailParamPage {
   }
 
   onPageWillEnter(){
-    this._modelService.selectedModel$.subscribe(
+    this._modelSubscription = this._modelService.selectedModel$.subscribe(
       data  => {
         this._blockLocalCopy = data.atomicBlocks.find(item => { return item.label === this._blockLabel });
       },
@@ -30,16 +32,34 @@ export class ModelDetailParamPage {
     )
   }
 
+  ngOnDestroy() {
+    this._modelSubscription.unsubscribe();
+  }
+
   saveParam(){
-    this._modelService.saveModelParameters(this._blockLocalCopy).then(
-      text => {this.displayAlert(text)}
-    );
+    this.uploadNewPictures().then (
+      response => {
+        if (response === 'OK') {
+          this._modelService.saveModelParameters(this._blockLocalCopy).then(
+            text => {this.displayAlert(text)}
+          );
+        }
+      }
+    )
+    .catch(text => {this.displayAlert(text)});
   }
 
   modifyParam(){
-    this._simulationService.modifyModelParameters(this._blockLocalCopy).then(
-      text => {this.displayAlert(text)}
-    );
+    this.uploadNewPictures().then (
+      response => {
+        if (response === 'OK') {
+          this._simulationService.modifyModelParameters(this._blockLocalCopy).then(
+            text => {this.displayAlert(text)}
+          );
+        }
+      }
+    )
+    .catch(text => {this.displayAlert(text)});
   }
 
   /* Menu to select between possible phone inputs */
@@ -97,6 +117,7 @@ export class ModelDetailParamPage {
       error => {this.displayAlert(error.message)}
     );
   }
+
   public takePicture(param : BlockParam){
     // See options definition here :
     // https://github.com/driftyco/ionic-native/blob/master/src/plugins/camera.ts
@@ -106,28 +127,56 @@ export class ModelDetailParamPage {
             encodingType: 0,// 0:JPEG/1:PNG
             quality:100,
             allowEdit: false,
-            saveToPhotoAlbum: false
+            saveToPhotoAlbum: true
         };
     Camera.getPicture(options).then(
       img => {
-        /*let base64Image = "data:image/jpeg;base64," + img;
-        param.value=JSON.stringify(base64Image);*/
-
-        this._modelService.uploadPicture(img, this._blockLocalCopy.label)
-        .then (response => {
-          //console.log(response);
-          param.type = 'image';
-          param.value = response;
-        })
-        .catch (error => {
-          //console.log(error);
-          this.displayAlert("Image upload failed.")
-        });
-
+        param.value = img; // for immediate display of the image
+        param.imageUploadRequired = true;
       },
       error => {this.displayAlert(error.message)}
     );
 
+  }
+
+  private uploadNewPictures(): Promise<string> {
+    let nbPictureUploadRequest  = 0;
+    let nbPictureUploadResponse = 0;
+    let pictureUploadSuccess    = true;
+
+    return new Promise(
+      (resolve, reject) => {
+        this._blockLocalCopy.params.forEach(
+        param => {
+          if (param.type === 'image' && param.imageUploadRequired) {
+            //console.log('UPLOAD image for ' + param.name)
+            nbPictureUploadRequest++;
+            this._modelService.uploadPicture(param.value, this._blockLocalCopy.label)
+            .then (response => {
+              //console.log('UPLOAD done for ' + param.name);
+              param.type = 'image';
+              param.value = response;
+              param.imageUploadRequired = false;
+              nbPictureUploadResponse++;
+              if (nbPictureUploadResponse === nbPictureUploadRequest && pictureUploadSuccess) {
+                //console.log('RESOLVE');
+                resolve('OK');
+              }
+
+            })
+            .catch (error => {
+              console.log(error);
+              pictureUploadSuccess = false;
+              nbPictureUploadResponse++;
+              reject(`Image upload for ${param.name} failed.`);
+            });
+          }
+        });
+        if (nbPictureUploadRequest === 0) {
+          resolve('OK');
+        }
+      }
+    );
   }
 
   private displayAlert(text : string) {
@@ -136,9 +185,9 @@ export class ModelDetailParamPage {
       buttons: [{
       text: 'OK',
       handler: () => {
-        alert.dismiss();
-        //let navTransition = alert.dismiss();
-        //navTransition.then(() => {this.nav.pop();});
+        //alert.dismiss();
+        let navTransition = alert.dismiss();
+        navTransition.then(() => {this.nav.pop();});
         return false;
       }
       }]

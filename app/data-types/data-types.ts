@@ -26,6 +26,7 @@ export interface BlockParam {
   type  : string;
   name  : string;
   value : any;
+  imageUploadRequired? : boolean;
 }
 
 export class Block {

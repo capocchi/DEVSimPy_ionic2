@@ -157,7 +157,7 @@ export class SimulationService {
       .map (response => {
         let alertText = "Parameters modified in simulation";
         if (!response.json().success) {
-          alertText = "Parameters modification failed. Rloaeason : " + response.json().info;
+          alertText = "Parameters modification failed. Reason : " + response.json().info;
         }
         return alertText;} )
       .toPromise();
