@@ -132,8 +132,12 @@ export class Simulation {
   }
 }
 
-export class Result {
-  constructor (public label : string,
-               public value : number
-             ) {}
+export interface Result {
+  time  : number;
+  value : any;
+}
+
+export interface ClassResult {
+  label : string;
+  score : number;
 }

@@ -1,6 +1,6 @@
 import {Page, NavController} from 'ionic-angular';
 import {PusherService} from '../../providers/pusher-service/pusher-service';
-import {Simulation, SimulationOutput} from '../../data-types/data-types';
+import {Simulation, SimulationOutput, Result, ClassResult} from '../../data-types/data-types';
 import {ViewChild} from '@angular/core';
 import {SimulationService} from '../../providers/simulation-service/simulation-service';
 
@@ -16,18 +16,23 @@ export class ModelDetailSimuResultPage {
   _label : string = '';
   _plotUrl : string = '';
   _showSpinner : boolean = false;
-  @ViewChild('resultPlotly') graph; // Only exists after view init
+  @ViewChild('resultGraph') graph; // Only exists after view init
 
   private _selectedSimu    : Simulation = null;
   private _simuSubscription;
   private _pusherSubscription;
 
-  _graphLayout = {
+  LineGraphLayout = {
     yaxis: { title: ''},      // set the y axis title
-    xaxis: {showgrid: false                  // remove the x-axis grid lines
-          //tickformat: "%B, %Y"            // customize the date format to "month, day"
+    xaxis: {showgrid: false             // remove the x-axis grid lines
+          //tickformat: "%B, %Y"        // customize the date format to "month, day"
           },
-    margin: {l: 40, b: 20, r: 10, t: 10}                           // update the left, bottom, right, top margin
+    margin: {l: 40, b: 20, r: 10, t: 10} // update the left, bottom, right, top margin
+  };
+
+  BarGraphLayout = {
+    xaxis: {tickangle: -45} // Label inclination
+    //margin: {l: 40, b: 0, r: 10, t: 10} // update the left, bottom, right, top margin
   };
 
   constructor(public nav: NavController,
@@ -48,7 +53,7 @@ export class ModelDetailSimuResultPage {
           this._plotUrl = '';
           this._label   = 'No results yet';
           this._showSelection = false;
-          if (this.graph) {this.resetGraphDiv();}
+          if (this.graph) {this.resetLineGraphDiv();}
           //Listen for live results
           if (this._pusherSubscription) {this._pusherSubscription.unsubscribe();}
           this._pusherSubscription = this._pusherService.liveResult$.subscribe(
@@ -120,31 +125,64 @@ export class ModelDetailSimuResultPage {
 
   public getResultAndDrawGraph(){
     this._showSelection = false;
-    this.resetGraphDiv();
+    this.resetLineGraphDiv();
     this._resultsFile.forEach(
       result => {
         if (result.checked) {
           this._simulationService.getResultFileAsJSON(this._selectedSimu.simu_name, result.filename).subscribe(
             response => {
               let data = response.json().data;
-              let xyData = {x:[],
-                           y:[],
-                           mode:'lines',
-                           name:result.label};
-              data.forEach(r => {
-                xyData.x.push(r.time);
-                xyData.y.push(r.value);
-              });
-
-              Plotly.plot( this.graph.nativeElement, [xyData] , this._graphLayout );
+              // Process various kinds of results
+              if (data.length > 1 && typeof(data[0].value)==='number') {
+                this.addDataToLineGraph(result.label, data)
+              }
+              if (data.length === 1 && typeof(data[0].value)==='string') {
+                //try {
+                  let classes : Array<ClassResult> = JSON.parse(data[0].value);
+                  console.log(classes);
+                  this.showClassificationGraph(result.label, classes);
+                /*}
+                catch (ex) {
+                  console.log(ex)
+                  //display()'Unexpected data types')
+                }*/
+              }
             });
         }
       }
     )
   }
 
-  private resetGraphDiv(){
-    Plotly.newPlot( this.graph.nativeElement, {x:[],y:[],mode:'lines'} , this._graphLayout );
+  private resetLineGraphDiv(){
+    Plotly.newPlot( this.graph.nativeElement, {x:[],y:[],type:'scatter'}, this.LineGraphLayout );
+  }
+
+  private addDataToLineGraph(label:string, data : Array<Result>) {
+    let xyData = {x:[],
+                  y:[],
+                  type:'scatter',
+                  name:label};
+
+    data.forEach(r => {
+      xyData.x.push(r.time);
+      xyData.y.push(r.value);
+    });
+
+    Plotly.newPlot( this.graph.nativeElement, [xyData] , this.LineGraphLayout );
+  }
+
+  private showClassificationGraph(label:string, classes: Array<ClassResult>) {
+    let xyData = {x:[],
+                  y:[],
+                  type:'bar',
+                  name:'Classification'};
+
+    classes.forEach( c => {
+      xyData.x.push(c.label)
+			xyData.y.push(c.score)
+    })
+
+    Plotly.newPlot( this.graph.nativeElement, [xyData] , this.BarGraphLayout );
   }
 
   public showSelection(){

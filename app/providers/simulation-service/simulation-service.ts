@@ -174,7 +174,7 @@ export class SimulationService {
 
   public getResultFileAsJSON(simuName : string, filename : string) : Observable<any> {
     // URL for downloading result file as JSON
-    let url = `${this._simuEndPoint}/${simuName}/results/${filename}/0`;//TODO handle bigger files
+    let url = `${this._simuEndPoint}/${simuName}/results/${filename}`;//TODO handle bigger files
     return this._http.get(url);
   }
 
