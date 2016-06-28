@@ -140,6 +140,7 @@ export class ModelDetailParamPage {
   }
 
   private uploadNewPictures(): Promise<string> {
+    let allPictureUploadRequestDone = false;
     let nbPictureUploadRequest  = 0;
     let nbPictureUploadResponse = 0;
     let pictureUploadSuccess    = true;
@@ -158,7 +159,7 @@ export class ModelDetailParamPage {
               param.value = response;
               param.imageUploadRequired = false;
               nbPictureUploadResponse++;
-              if (nbPictureUploadResponse === nbPictureUploadRequest && pictureUploadSuccess) {
+              if (allPictureUploadRequestDone && nbPictureUploadResponse === nbPictureUploadRequest && pictureUploadSuccess) {
                 //console.log('RESOLVE');
                 resolve('OK');
               }
@@ -172,6 +173,8 @@ export class ModelDetailParamPage {
             });
           }
         });
+        //console.log('ALL pictures upload requests done')
+        allPictureUploadRequestDone = true;
         if (nbPictureUploadRequest === 0) {
           resolve('OK');
         }
