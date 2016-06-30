@@ -3,6 +3,7 @@
 </ion-navbar>
 
 <ion-content padding class="simulation-list">
+  <button block (click)="deleteAllSimu()">CLEAR ALL</button>
   <ion-card *ngFor="let simu of _simulationService.simus$ | async">
       <ion-card-header ion-item>
           {{simu.info.model_name | uppercase}}

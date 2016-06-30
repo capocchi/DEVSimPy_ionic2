@@ -1,4 +1,4 @@
-import {Page, NavController} from 'ionic-angular';
+import {Page, NavController, Alert} from 'ionic-angular';
 import { SimulationService } from '../../providers/simulation-service/simulation-service';
 import { Simulation } from '../../data-types/data-types';
 
@@ -50,5 +50,27 @@ export class ModelDetailSimuListPage {
 
   public deleteSimu(simulation_name : string) {
     this._simulationService.deleteSimu(simulation_name);
+  }
+
+  public deleteRelatedSimu() {
+    let alert = Alert.create({
+      message : "Are you sure you want to delete these simulations?",
+      buttons: [
+        {
+        text: 'NO',
+          handler: () => {
+            alert.dismiss();
+            return false;}
+        },
+        {
+        text: 'YES',
+        handler: () => {
+          this._simulationService.deleteModelSimu(this.selectedSimu.info.model_name);
+          alert.dismiss();
+          return false;}
+        }
+      ]
+    });
+    this.nav.present(alert);
   }
 }

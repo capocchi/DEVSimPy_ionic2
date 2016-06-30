@@ -172,6 +172,24 @@ export class SimulationService {
       });
   }
 
+  public deleteAllSimu() {
+    // PUT request for kill has an empty body
+    this._http.delete(`${this._simuEndPoint}`)
+      .subscribe(response => {
+        //console.log(response);
+        this.loadSimuList();
+      });
+  }
+
+  public deleteModelSimu(model_name) {
+    // PUT request for kill has an empty body
+    this._http.delete(`${this._simuEndPoint}?model_name=${model_name}`)
+      .subscribe(response => {
+        //console.log(response);
+        this.loadSimuList();
+      });
+  }
+
   public getResultFileAsJSON(simuName : string, filename : string) : Observable<any> {
     // URL for downloading result file as JSON
     let url = `${this._simuEndPoint}/${simuName}/results/${filename}`;//TODO handle bigger files

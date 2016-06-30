@@ -3,7 +3,7 @@
 </ion-navbar>
 
 <ion-content padding class="model-detail-simu-list">
-
+    <button block (click)="deleteRelatedSimu()">CLEAR ALL</button>
     <ion-list>
 
       <ion-card *ngFor="let simu of selectedModelSimus">
