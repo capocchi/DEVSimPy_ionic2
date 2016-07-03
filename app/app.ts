@@ -9,7 +9,8 @@ import {PusherService} from './providers/pusher-service/pusher-service';
 @App({
   template: '<ion-nav [root]="rootPage"></ion-nav>',
   config: {}, // http://ionicframework.com/docs/v2/api/config/Config/
-  providers: [ModelService, SimulationService, ConnectionService, PusherService]
+  providers: [ModelService, SimulationService, ConnectionService, PusherService],
+  prodMode: true
 })
 export class MyApp {
   rootPage: any = LoginPage;
