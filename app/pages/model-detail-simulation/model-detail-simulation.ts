@@ -47,12 +47,13 @@ export class ModelDetailSimulationPage {
         this._progress = progress;
         if (progress === 100) {
           console.log('100%')
+          // Switch to result tab
+          this.nav.parent.select(5);
           // There might be a delay between the reception of the 100% completion information
           // and the simulation process being really FINISHED (and returning results)
           setTimeout(() => {
             this.refreshSimu();
-            // Switch to result tab
-            //this.nav.parent.select(5);
+
           }, 500);
         }
       }

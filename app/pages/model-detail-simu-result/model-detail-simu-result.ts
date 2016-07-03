@@ -55,7 +55,7 @@ export class ModelDetailSimuResultPage {
           this._showSelection = false;
           if (this.graph) {this.resetLineGraphDiv();}
           //Listen for live results
-          if (this._pusherSubscription) {this._pusherSubscription.unsubscribe();}
+          if (this._pusherSubscription) {this._pusherSubscription.unsubscribe();}//TBC subscribe once
           this._pusherSubscription = this._pusherService.liveResult$.subscribe(
             results => {
               console.log('GET live results')
@@ -66,7 +66,7 @@ export class ModelDetailSimuResultPage {
                 this._plotUrl = results[0].plotUrl;
                 this._label = results[0].label;
                 // Force switch to Result Tab
-                //this.nav.parent.select(5);
+                this.nav.parent.select(5);
                 this.startSpinner();
               }
             }
@@ -84,12 +84,14 @@ export class ModelDetailSimuResultPage {
               if (o.filename) {this._resultsFile.push(o)}
             }
           )
+          console.log(this._resultsUrl)
           if (this._resultsUrl.length > 0) {
               this._plotUrl = this._resultsUrl[0].plotUrl;
           }
           if (this._resultsFile.length > 0) {
             this._resultsFile.forEach(result => {result.checked = true;});
             if (this.graph) {this.getResultAndDrawGraph();}
+            else {console.log('graph not ready')}
           }
           if (simu.info.report.output.length > 0) {
             this._label  = simu.info.report.output[0].label;
@@ -103,13 +105,6 @@ export class ModelDetailSimuResultPage {
 
     //this.startSpinner();
   }
-
-  /* onPageWillEnter() {
-    console.log('ENTER ModelDetailSimuResultPage')
-  }
-  onPageDidLeave() {
-    console.log('LEAVE ModelDetailSimuResultPage')
-  }*/
 
   ngOnDestroy(){
     console.log('DESTROY ModelDetailSimuResultPage')
@@ -137,15 +132,14 @@ export class ModelDetailSimuResultPage {
                 this.addDataToLineGraph(result.label, data)
               }
               if (data.length === 1 && typeof(data[0].value)==='string') {
-                //try {
+                try {
                   let classes : Array<ClassResult> = JSON.parse(data[0].value);
-                  console.log(classes);
                   this.showClassificationGraph(result.label, classes);
-                /*}
+                }
                 catch (ex) {
                   console.log(ex)
                   //display()'Unexpected data types')
-                }*/
+                }
               }
             });
         }
@@ -154,7 +148,8 @@ export class ModelDetailSimuResultPage {
   }
 
   private resetLineGraphDiv(){
-    Plotly.newPlot( this.graph.nativeElement, {x:[],y:[],type:'scatter'}, this.LineGraphLayout );
+    Plotly.purge(this.graph.nativeElement);
+    //Plotly.newPlot( this.graph.nativeElement, {x:[],y:[],type:'scatter'}, this.LineGraphLayout );
   }
 
   private addDataToLineGraph(label:string, data : Array<Result>) {
@@ -168,7 +163,7 @@ export class ModelDetailSimuResultPage {
       xyData.y.push(r.value);
     });
 
-    Plotly.newPlot( this.graph.nativeElement, [xyData] , this.LineGraphLayout );
+    Plotly.plot( this.graph.nativeElement, [xyData] , this.LineGraphLayout );
   }
 
   private showClassificationGraph(label:string, classes: Array<ClassResult>) {
