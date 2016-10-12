@@ -76,12 +76,13 @@ export class SimulationService {
     }
   }
 
-  public start(simulatedDuration: number) {
+  public start(simulatedDuration: number, simulator: string) {
     this._selectedSimuBS$.getValue().simu_name = 'NOT_STARTED';
     this._selectedSimuBS$.getValue().info.simulated_duration = simulatedDuration;
+    this._selectedSimuBS$.getValue().info.simulator          = simulator;
     let modelName = this._selectedSimuBS$.getValue().info.model_name;
 
-    let simuPostBody: string = `{"model_name":"${modelName}", "simulated_duration": ${simulatedDuration} }`;
+    let simuPostBody: string = `{"model_name":"${modelName}", "simulated_duration": ${simulatedDuration}, "simulator":"${simulator}"}`;
     let headers = new Headers();
     headers.append('Content-Type','application/json;charset=UTF-8');
     headers.append('Accept','application/json');

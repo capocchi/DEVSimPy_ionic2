@@ -11,6 +11,7 @@ import {Subject} from "rxjs/Rx";
 export class ModelDetailSimulationPage {
 
   public simulatedDuration : number = 10;
+  public simulator = 'PyDEVS'
   private _selectedSimu       : Simulation = null;
   private _simuSubscription;
   private _pusherSubscription;
@@ -78,7 +79,7 @@ export class ModelDetailSimulationPage {
     this._pusherSubscription.unsubscribe();
   }
   public startSimu() {
-    this._simulationService.start(this.simulatedDuration);}
+    this._simulationService.start(this.simulatedDuration, this.simulator);}
 
   public refreshSimu() {
     this._simulationService.updateSelectedSimu();}

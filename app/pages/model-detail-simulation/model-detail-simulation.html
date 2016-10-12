@@ -9,6 +9,13 @@
     <ion-card-header>NEW SIMULATION</ion-card-header>
     <ion-card-content>
       <ion-item>
+        <ion-label>Simulator</ion-label>
+        <ion-select [(ngModel)]="simulator">
+          <ion-option value="PyDEVS">PyDEVS</ion-option>
+          <ion-option value="PyPDEVS">PyPDEVS</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
         <ion-label fixed>Duration</ion-label>
         <ion-input type="number" [(ngModel)]="simulatedDuration"></ion-input>
       </ion-item>
