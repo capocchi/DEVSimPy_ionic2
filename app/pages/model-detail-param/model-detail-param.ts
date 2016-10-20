@@ -26,7 +26,7 @@ export class ModelDetailParamPage {
   onPageWillEnter(){
     this._modelSubscription = this._modelService.selectedModel$.subscribe(
       data  => {
-        this._blockLocalCopy = data.atomicBlocks.find(item => { return item.label === this._blockLabel });
+        this._blockLocalCopy = data.blocks.find(item => { return item.label === this._blockLabel });
       },
       error => {console.log(error);}
     )

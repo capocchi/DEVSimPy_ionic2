@@ -12,7 +12,11 @@
     </ion-item>
   </ion-list>
   <iframe *ngIf="_plotUrl" width="100%" height="100%" frameborder="0" scrolling="no" [src]=_plotUrl></iframe>
-
+  <ion-list *ngIf="_plotUrl">
+    <ion-item *ngFor="let dest of _interactionDestinations">
+      <button block (click)="sendMsg(dest)">{{dest}}</button>
+    </ion-item>
+  </ion-list>
 
   <!-- draw graph from data from file -->
   <button block *ngIf="_resultsFile.length>0 && !_showSelection" (click)="showSelection()">SELECT RESULTS</button>

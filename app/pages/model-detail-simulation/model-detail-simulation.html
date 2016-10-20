@@ -37,9 +37,7 @@
 
       <button block *ngIf="_selectedSimu?.info.status==='RUNNING'" (click)="pauseSimu()"><ion-icon name="pause"></ion-icon></button>
       <button block *ngIf="_selectedSimu?.info.status==='RUNNING'" (click)="refreshSimu()"><ion-icon name="refresh"></ion-icon></button>
-
       <button block *ngIf="_selectedSimu?.info.status==='PAUSED'" (click)="resumeSimu()"><ion-icon name="play"></ion-icon></button>
-
       <button block (click)="killSimu()"><ion-icon name="close-circle"></ion-icon></button>
 
     </ion-card-content>

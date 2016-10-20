@@ -164,6 +164,22 @@ export class SimulationService {
       .toPromise();
   }
 
+  public sendMsgToSelectedSimu(dest) : Promise<string> {
+    let url = `${this._simuEndPoint}/${this._selectedSimuBS$.getValue().simu_name}/msg/${dest}`;
+    //let body = block.toJSONstring();
+    //console.log(body);
+    let headers = new Headers();
+    headers.append('Content-Type','application/json; charset=utf-8');
+    return this._http.put(url, '', {headers : headers})
+      .map (response => {
+        let alertText = "Message sent to "+dest;
+        if (!response.json().success) {
+          alertText = "Message failed. Reason : " + response.json().info;
+        }
+        return alertText;} )
+      .toPromise();
+  }
+
   public deleteSimu(simuName : string) {
     // PUT request for kill has an empty body
     this._http.delete(`${this._simuEndPoint}/${simuName}`)

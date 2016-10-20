@@ -71,14 +71,14 @@ export class Block {
 
 export class Model {
   public cells        : Array<any>;
-  public atomicBlocks : Array<Block>
+  public blocks       : Array<Block>
   public description  : String;
 
   constructor (public model_name:string,
                public last_modified:string,
                public size:number ){
     this.cells        = [];
-    this.atomicBlocks = [];
+    this.blocks = [];
     this.description  = "";
   }
 
@@ -87,7 +87,7 @@ export class Model {
     this.last_modified = last_modified;
     this.size          = size;
     this.cells         = [];
-    this.atomicBlocks  = [];
+    this.blocks  = [];
     this.description   = "";
   }
 
@@ -96,8 +96,8 @@ export class Model {
     this.description = modelWS.description;
     // Extract atomic blocks and parameters for easier manipulation
     this.cells.forEach(cell => {
-      if (cell.type === 'devs.Atomic') {
-        this.atomicBlocks.push(new Block(cell.id, cell.prop.data));
+      if (cell.type === 'devs.Atomic' || cell.type === 'devs.Coupled') {
+        this.blocks.push(new Block(cell.id, cell.prop.data));
       }
     })
   }

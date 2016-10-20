@@ -1,8 +1,9 @@
 import {Page, NavController} from 'ionic-angular';
 import {PusherService} from '../../providers/pusher-service/pusher-service';
-import {Simulation, SimulationOutput, Result, ClassResult} from '../../data-types/data-types';
+import {Simulation, SimulationOutput, Model, Result, ClassResult} from '../../data-types/data-types';
 import {ViewChild} from '@angular/core';
 import {SimulationService} from '../../providers/simulation-service/simulation-service';
+import {ModelService} from '../../providers/model-service/model-service';
 
 declare var Plotly : any;
 
@@ -16,10 +17,12 @@ export class ModelDetailSimuResultPage {
   _label : string = '';
   _plotUrl : string = '';
   _showSpinner : boolean = false;
+  _interactionDestinations : Array<string> = [];
   @ViewChild('resultGraph') graph; // Only exists after view init
 
   private _selectedSimu    : Simulation = null;
   private _simuSubscription;
+  private _modelSubscription;
   private _pusherSubscription;
 
   LineGraphLayout = {
@@ -37,7 +40,8 @@ export class ModelDetailSimuResultPage {
 
   constructor(public nav: NavController,
               private _pusherService: PusherService,
-              private _simulationService: SimulationService) {
+              private _simulationService: SimulationService,
+              private _modelService: ModelService) {
 
     console.log("CREATE ModelDetailSimuResultPage")
 
@@ -103,12 +107,17 @@ export class ModelDetailSimuResultPage {
       }
     );
 
+    this._modelSubscription = this._modelService.selectedModel$.subscribe(
+      data  => {this.getInteractionsFromModel(data);},
+      error => console.log(error)
+    );
     //this.startSpinner();
   }
 
   ngOnDestroy(){
     console.log('DESTROY ModelDetailSimuResultPage')
     this._simuSubscription.unsubscribe();
+    this._modelSubscription.unsubscribe();
     this._pusherSubscription.unsubscribe();
   }
 
@@ -188,4 +197,22 @@ export class ModelDetailSimuResultPage {
     this._showSpinner = true;
     setTimeout(()=> {this._showSpinner = false}, 5000);
   }
+
+  private getInteractionsFromModel(model:Model){
+    console.log('INTERACTIONS')
+    /*this._interactionDestinations = [];
+    model.cells.forEach(cell => {
+      if (cell.type === 'devs.Link') {
+        console.log(cell)
+        if (cell.source.startsWith('Interaction')) {
+          this._interactionDestinations.push(cell.target)
+        }
+      }
+    })
+    console.log(this._interactionDestinations)*/
+    this._interactionDestinations = ['AddInterceptor']//TODO : Automatic */
+  }
+
+  public sendMsg(dest) {
+    this._simulationService.sendMsgToSelectedSimu(dest);}
 }

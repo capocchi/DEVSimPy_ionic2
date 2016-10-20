@@ -4,7 +4,7 @@
 
 <ion-content padding class="model-detail-block">
 
-  <ion-card *ngFor="let block of (_modelService.selectedModel$ | async)?.atomicBlocks"  (click)="goToParam(block.label)">
+  <ion-card *ngFor="let block of (_modelService.selectedModel$ | async)?.blocks"  (click)="goToParam(block.label)">
     <ion-card-header>{{block.label}}</ion-card-header>
   </ion-card>
 
