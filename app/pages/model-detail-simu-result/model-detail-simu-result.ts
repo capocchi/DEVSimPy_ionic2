@@ -1,9 +1,11 @@
 import {Page, NavController} from 'ionic-angular';
 import {PusherService} from '../../providers/pusher-service/pusher-service';
-import {Simulation, SimulationOutput, Model, Result, ClassResult} from '../../data-types/data-types';
+import {Simulation, Model} from '../../data-types/data-types';
+import {DataResult, UrlResult, Diagram} from '../../data-types/result-diagram-types';
 import {ViewChild} from '@angular/core';
 import {SimulationService} from '../../providers/simulation-service/simulation-service';
 import {ModelService} from '../../providers/model-service/model-service';
+import {VisualizationService} from '../../providers/visualization-service/visualization-service';
 
 declare var Plotly : any;
 
@@ -11,182 +13,81 @@ declare var Plotly : any;
   templateUrl: 'build/pages/model-detail-simu-result/model-detail-simu-result.html',
 })
 export class ModelDetailSimuResultPage {
-  _resultsUrl  : Array<SimulationOutput> = [];
-  _resultsFile : Array<SimulationOutput> = [];
+  _mainLabel     : string  = 'Results';
   _showSelection : boolean = false;
-  _label : string = '';
-  _plotUrl : string = '';
-  _showSpinner : boolean = false;
-  _interactionDestinations : Array<string> = [];
   @ViewChild('resultGraph') graph; // Only exists after view init
+  _showSpinner       : boolean = false;
+
+  _interactionDestinations : Array<string> = [];
 
   private _selectedSimu    : Simulation = null;
   private _simuSubscription;
   private _modelSubscription;
-  private _pusherSubscription;
-
-  LineGraphLayout = {
-    yaxis: { title: ''},      // set the y axis title
-    xaxis: {showgrid: false             // remove the x-axis grid lines
-          //tickformat: "%B, %Y"        // customize the date format to "month, day"
-          },
-    margin: {l: 40, b: 20, r: 10, t: 10} // update the left, bottom, right, top margin
-  };
-
-  BarGraphLayout = {
-    xaxis: {tickangle: -45} // Label inclination
-    //margin: {l: 40, b: 0, r: 10, t: 10} // update the left, bottom, right, top margin
-  };
 
   constructor(public nav: NavController,
               private _pusherService: PusherService,
               private _simulationService: SimulationService,
-              private _modelService: ModelService) {
-
+              private _modelService: ModelService,
+              private _visuService: VisualizationService
+            )
+  {
     console.log("CREATE ModelDetailSimuResultPage")
 
     this._simuSubscription = this._simulationService.selectedSimu$.subscribe(
       simu => {
         console.log("UPDATE_SIMU in ModelDetailSimuResultPage " + simu.simu_name + ' ' + simu.info.status)
-
-        // Selected simulation change --> Reset data
+        console.log(this._visuService.plotSelections);
+        // If selected simulation changes --> Reset data
         if (!this._selectedSimu || this._selectedSimu.simu_name !== simu.simu_name) {
           // Reset
-          this._resultsUrl = [];
-          this._resultsFile = [];
-          this._plotUrl = '';
-          this._label   = 'No results yet';
-          this._showSelection = false;
-          if (this.graph) {this.resetLineGraphDiv();}
-          //Listen for live results
-          if (this._pusherSubscription) {this._pusherSubscription.unsubscribe();}//TBC subscribe once
-          this._pusherSubscription = this._pusherService.liveResult$.subscribe(
-            results => {
-              console.log('GET live results')
-              console.log(results)
-              this._resultsUrl = results; // should only contain results of URL type
-              // display first by default
-              if (results[0] && results[0].plotUrl) {
-                this._plotUrl = results[0].plotUrl;
-                this._label = results[0].label;
-                // Force switch to Result Tab
-                this.nav.parent.select(5);
-                this.startSpinner();
-              }
-            }
-          );
+          this._mainLabel = simu.info.model_name;
+          this._showSelection  = true;
         }
 
         // Process only first FINISHED report for a given simulation
         if (simu.info.status === 'FINISHED' &&
             (!this._selectedSimu || this._selectedSimu.simu_name !== simu.simu_name || this._selectedSimu.info.status !== 'FINISHED')) {
-          this._resultsUrl = [];
-          this._resultsFile = [];
+
+          console.log(simu.info.report.output);
           simu.info.report.output.forEach(
             o => {
-              if (o.plotUrl) {this._resultsUrl.push(o)}
-              if (o.filename) {this._resultsFile.push(o)}
-            }
+              if (o.plotUrl) {
+                this._visuService.addUrlResult({label : o.label, plotUrl : o.plotUrl});
+                }
+              if (o.filename) {
+                this._simulationService.getResultFileAsJSON(this._selectedSimu.simu_name, o.filename).subscribe(
+                    response => {
+                      let data = response.json().data;
+                      data.forEach(d => this._visuService.addDataResult({label : o.label, result : d}));
+                    });
+                }
+              }
           )
-          console.log(this._resultsUrl)
-          if (this._resultsUrl.length > 0) {
-              this._plotUrl = this._resultsUrl[0].plotUrl;
-          }
-          if (this._resultsFile.length > 0) {
-            this._resultsFile.forEach(result => {result.checked = true;});
-            if (this.graph) {this.getResultAndDrawGraph();}
-            else {console.log('graph not ready')}
-          }
-          if (simu.info.report.output.length > 0) {
-            this._label  = simu.info.report.output[0].label;
-            this.startSpinner();
-          }
         }
 
-        this._selectedSimu = simu;
-      }
-    );
+      this._selectedSimu = simu;
+    });
 
     this._modelSubscription = this._modelService.selectedModel$.subscribe(
       data  => {this.getInteractionsFromModel(data);},
       error => console.log(error)
     );
-    //this.startSpinner();
+
   }
 
   ngOnDestroy(){
     console.log('DESTROY ModelDetailSimuResultPage')
     this._simuSubscription.unsubscribe();
     this._modelSubscription.unsubscribe();
-    this._pusherSubscription.unsubscribe();
   }
 
-  public selectPlotUrl(output : SimulationOutput){
-    this._plotUrl = output.plotUrl;
-    this._label   = output.label;
-    this.startSpinner();
-  }
-
-  public getResultAndDrawGraph(){
+  public showAll(){
     this._showSelection = false;
-    this.resetLineGraphDiv();
-    this._resultsFile.forEach(
-      result => {
-        if (result.checked) {
-          this._simulationService.getResultFileAsJSON(this._selectedSimu.simu_name, result.filename).subscribe(
-            response => {
-              let data = response.json().data;
-              // Process various kinds of results
-              if (data.length > 1 && typeof(data[0].value)==='number') {
-                this.addDataToLineGraph(result.label, data)
-              }
-              if (data.length === 1 && typeof(data[0].value)==='string') {
-                try {
-                  let classes : Array<ClassResult> = JSON.parse(data[0].value);
-                  this.showClassificationGraph(result.label, classes);
-                }
-                catch (ex) {
-                  console.log(ex)
-                  //display()'Unexpected data types')
-                }
-              }
-            });
-        }
-      }
-    )
-  }
-
-  private resetLineGraphDiv(){
-    Plotly.purge(this.graph.nativeElement);
-    //Plotly.newPlot( this.graph.nativeElement, {x:[],y:[],type:'scatter'}, this.LineGraphLayout );
-  }
-
-  private addDataToLineGraph(label:string, data : Array<Result>) {
-    let xyData = {x:[],
-                  y:[],
-                  type:'scatter',
-                  name:label};
-
-    data.forEach(r => {
-      xyData.x.push(r.time);
-      xyData.y.push(r.value);
-    });
-
-    Plotly.plot( this.graph.nativeElement, [xyData] , this.LineGraphLayout );
-  }
-
-  private showClassificationGraph(label:string, classes: Array<ClassResult>) {
-    let xyData = {x:[],
-                  y:[],
-                  type:'bar',
-                  name:'Classification'};
-
-    classes.forEach( c => {
-      xyData.x.push(c.label)
-			xyData.y.push(c.score)
-    })
-
-    Plotly.newPlot( this.graph.nativeElement, [xyData] , this.BarGraphLayout );
+    this._visuService.setGraphDiv(this.graph);
+    this._visuService.show(this._visuService);
+    if (this._visuService.selectedUrl) {
+      this.startSpinner();
+    }
   }
 
   public showSelection(){
@@ -199,7 +100,6 @@ export class ModelDetailSimuResultPage {
   }
 
   private getInteractionsFromModel(model:Model){
-    console.log('INTERACTIONS')
     /*this._interactionDestinations = [];
     model.cells.forEach(cell => {
       if (cell.type === 'devs.Link') {

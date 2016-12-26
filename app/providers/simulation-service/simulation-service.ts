@@ -3,7 +3,7 @@ import {Http, Response, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {Subject, BehaviorSubject} from "rxjs/Rx";
 
-import {Simulation, Block, SimulationOutput} from '../../data-types/data-types';
+import {Simulation, Block} from '../../data-types/data-types';
 import {ConnectionService} from '../connection-service/connection-service';
 
 @Injectable()
@@ -209,7 +209,8 @@ export class SimulationService {
 
   public getResultFileAsJSON(simuName : string, filename : string) : Observable<any> {
     // URL for downloading result file as JSON
-    let url = `${this._simuEndPoint}/${simuName}/results/${filename}`;//TODO handle bigger files
+    let url = `${this._simuEndPoint}/${simuName}/results/${filename}`;
+    //TODO handle bigger files
     return this._http.get(url);
   }
 

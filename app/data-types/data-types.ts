@@ -106,12 +106,13 @@ export class Model {
 /******************************************************************************/
 //export enum SimulationStatus { NOT_STARTED, RUNNING, PAUSED, FINISHED_OK, FINISHED_NOK, UNEXPECTED }
 // Find out how to use it in the ngSwitch directive
-export interface SimulationOutput {
+/*export interface SimulationOutput {
   label   : string;
   plotUrl? : string;
   filename? : string;
-  checked? : boolean;
-}
+  pusherChannel? : string;
+  selected? : boolean;
+}*/
 
 export class Simulation {
 
@@ -130,14 +131,4 @@ export class Simulation {
     }
     return color;
   }
-}
-
-export interface Result {
-  time  : number;
-  value : any;
-}
-
-export interface ClassResult {
-  label : string;
-  score : number;
 }

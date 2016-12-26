@@ -5,12 +5,13 @@ import {ConnectionService} from './providers/connection-service/connection-servi
 import {ModelService} from './providers/model-service/model-service';
 import {SimulationService} from './providers/simulation-service/simulation-service';
 import {PusherService} from './providers/pusher-service/pusher-service';
+import {VisualizationService} from './providers/visualization-service/visualization-service';
 
 @App({
   template: '<ion-nav [root]="rootPage"></ion-nav>',
   config: {}, // http://ionicframework.com/docs/v2/api/config/Config/
-  providers: [ModelService, SimulationService, ConnectionService, PusherService],
-  prodMode: true
+  providers: [ModelService, SimulationService, ConnectionService, PusherService, VisualizationService],
+  prodMode: false
 })
 export class MyApp {
   rootPage: any = LoginPage;

@@ -1,31 +1,31 @@
- <ion-navbar *navbar>
+<ion-navbar *navbar>
   <ion-title>{{_label}}</ion-title>
 </ion-navbar>
 
 <ion-content padding class="model-detail-simu-result">
 
-  <!-- display image from URL (PLOTLY streaming) -->
-  <ion-list *ngIf="_resultsUrl.length>0">
-    <ion-item *ngFor="let output of _resultsUrl" (click)="selectPlotUrl(output)">
-      <ion-label>{{output.label}}</ion-label>
-      <ion-spinner item-right *ngIf="_showSpinner" name="dots"></ion-spinner>
+  <!-- Select which results to display -->
+  <button block *ngIf="!_showSelection" (click)="showSelection()">SELECT RESULTS</button>
+  <ion-list *ngIf="_visuService.plotSelections.length>0 && _showSelection">
+    <ion-item *ngFor="let plot of _visuService.plotSelections">
+      <ion-label>{{plot.label}}</ion-label>
+      <ion-checkbox [(ngModel)]="plot.checked"></ion-checkbox>
     </ion-item>
   </ion-list>
-  <iframe *ngIf="_plotUrl" width="100%" height="100%" frameborder="0" scrolling="no" [src]=_plotUrl></iframe>
-  <ion-list *ngIf="_plotUrl">
+  <button block *ngIf="_showSelection" (click)="showAll()">SHOW</button>
+
+  <!-- iframe to display from URL -->
+  <ion-spinner item-right *ngIf="_showSpinner" name="dots"></ion-spinner>
+  <iframe *ngIf="_visuService.selectedUrl" width="100%" height="100%" frameborder="0" scrolling="no"
+          [src]=_visuService.selectedUrl></iframe>
+
+  <ion-list>
     <ion-item *ngFor="let dest of _interactionDestinations">
       <button block (click)="sendMsg(dest)">{{dest}}</button>
     </ion-item>
   </ion-list>
 
-  <!-- draw graph from data from file -->
-  <button block *ngIf="_resultsFile.length>0 && !_showSelection" (click)="showSelection()">SELECT RESULTS</button>
-  <ion-list *ngIf="_resultsFile.length>0 && _showSelection">
-    <ion-item *ngFor="let output of _resultsFile">
-      <ion-label>{{output.label}}</ion-label>
-      <ion-checkbox [(ngModel)]="output.checked"></ion-checkbox>
-    </ion-item>
-  </ion-list>
-  <button block *ngIf="_resultsFile.length>0 && _showSelection" (click)="getResultAndDrawGraph()">SHOW</button>
+  <!-- div for data display -->
   <div #resultGraph style="width:100%; height:80%;"></div>
+
 </ion-content>

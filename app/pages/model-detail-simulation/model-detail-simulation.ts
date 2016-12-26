@@ -1,7 +1,7 @@
 import {Page, NavController, NavParams} from 'ionic-angular';
 import { SimulationService } from '../../providers/simulation-service/simulation-service';
 import { PusherService } from '../../providers/pusher-service/pusher-service';
-import { Simulation, SimulationOutput } from '../../data-types/data-types';
+import { Simulation } from '../../data-types/data-types';
 import { ModelDetailPage } from '../model-detail/model-detail';
 import {Subject} from "rxjs/Rx";
 
@@ -14,7 +14,8 @@ export class ModelDetailSimulationPage {
   public simulator = 'PyDEVS'
   private _selectedSimu       : Simulation = null;
   private _simuSubscription;
-  private _pusherSubscription;
+  private _pusherProgressSubscription;
+  private _pusherLiveSubscription;
 
   private _showReport = false;
   private _showSummary = false;
@@ -42,7 +43,7 @@ export class ModelDetailSimulationPage {
             }
           );
 
-    this._pusherSubscription = this._pusherService.progress$.subscribe(
+    this._pusherProgressSubscription = this._pusherService.progress$.subscribe(
       progress => {
         console.log('UPDATE PROGRESS in ModelDetailSimulationPage');
         this._progress = progress;
@@ -60,6 +61,14 @@ export class ModelDetailSimulationPage {
       }
     )
 
+    this._pusherLiveSubscription = this._pusherService.liveStream$.subscribe(
+      results => {
+        if (results.length > 0) {
+          // Switch to result tab
+          this.nav.parent.select(5);
+        }
+      }
+    );
   }
 
   public onPageWillEnter(){
@@ -69,14 +78,11 @@ export class ModelDetailSimulationPage {
     }
   }
 
-  /*public onPageDidLeave() {
-    console.log('LEAVE ModelDetailSimulationPage');
-  }*/
-
   public ngOnDestroy() {
     console.log('DESTROY ModelDetailSimulationPage');
     this._simuSubscription.unsubscribe();
-    this._pusherSubscription.unsubscribe();
+    this._pusherProgressSubscription.unsubscribe();
+    this._pusherLiveSubscription.unsubscribe();
   }
   public startSimu() {
     this._simulationService.start(this.simulatedDuration, this.simulator);}
