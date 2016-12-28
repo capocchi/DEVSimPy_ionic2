@@ -75,16 +75,16 @@ export class VisualizationService {
       let newDiagram : Diagram;
       let layout = null;
       if (result.result.value.layout) {layout = result.result.value.layout}
-      let markers = null;
-      // TODO move layout and markers info to live stream info
-      if (result.result.value.markers) {markers = result.result.value.markers}
 
       switch (SimData.typeOfData(result.result.value)) {
         case 'TimeSeries':
           newDiagram = new TimeValueDiagram(result.label, layout);
           break;
         case 'XY':
-          newDiagram = new XYDiagram(result.label, layout, markers);
+          newDiagram = new XYDiagram(result.label, layout);
+          // TODO move layout and markers info to live stream info
+          if (result.result.value.marker) {
+            newDiagram.setMarker(result.result.value.marker)};
           break;
         case 'Bars':
           newDiagram = new BarDiagram(result.label, layout);

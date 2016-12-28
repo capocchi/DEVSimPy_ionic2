@@ -42,6 +42,7 @@ export interface PlotlyDataSet {
     type : String;
     mode : String;
     name : String;
+    marker? : any;
 }
 
 /*************************************************/
@@ -69,13 +70,11 @@ export abstract class Diagram {
     return this._layout;
   }
 
-  public abstract getDiagramType();
-
-  public abstract getDiagramMode();
+  public setMarker(marker:any) {
+    this._data.marker = marker;
+  }
 
   public getData() {
-    this._data.mode = this.getDiagramMode();//TODO déplacer dans les enfants
-    this._data.type = this.getDiagramType();
     return this._data;
   }
 
@@ -95,7 +94,6 @@ export abstract class Diagram {
 export class XYDiagram extends Diagram {
 
   private _currentTime : number;
-  private _markers : any;
   private _keepXY  : boolean = false;//indicates that xy data shall not be erased when time increase
 
   private _maxX : number = 0;
@@ -103,22 +101,16 @@ export class XYDiagram extends Diagram {
   private _minX : number = 0;
   private _minY : number = 0;
 
-  constructor (label : string, layout : any = {}, markers : any = {}) {
+  constructor (label : string, layout : any = {}, marker : any = {}) {
     super(label, layout);
     this._currentTime = -1;
-    this._markers = markers;
+    this._data.marker = marker;
+    this._data.mode = 'markers';
+    this._data.type = 'scatter';
   }
 
   public getTypeOfData() {
     return 'XY';
-  }
-
-  public getDiagramType() {
-    return 'scatter';
-  }
-
-  public getDiagramMode() {
-    return 'markers';
   }
 
   public getLayout() {
@@ -133,13 +125,9 @@ export class XYDiagram extends Diagram {
   };
 
   public addData (data : SimData) {
-    if (this._data.name === 'InterceptorsUpdate') {
-      console.log(data.value.source + ' ' + data.time) }
     if ((data.time - this._currentTime) > 1.0) {
       this._currentTime = data.time;
-      if (!this._keepXY) {
-        if (this._data.name === 'InterceptorsUpdate') {
-          console.log('reset ' + this._data.name)}
+      if (!data.value.keepXY) {
         this._data.x = [];
         this._data.y = [];
       }
@@ -155,7 +143,7 @@ export class XYDiagram extends Diagram {
   public nbData() {
     return this._data.x.length;
   }
-  
+
   public updateLayoutforCompatibility(layout) {
     if (this._minX < layout.xaxis.range[0]) {layout.xaxis.range[0] = this._minX}
     if (this._maxX > layout.xaxis.range[1]) {layout.xaxis.range[1] = this._maxX}
@@ -176,18 +164,12 @@ export class TimeValueDiagram extends Diagram {
         //margin: {l: 40, b: 20, r: 10, t: 10}// left, bottom, right, top margins
       }
     }
+    this._data.mode = 'lines';
+    this._data.type = 'scatter';
   }
 
   public getTypeOfData() {
     return 'TimeSeries';
-  }
-
-  public getDiagramType() {
-    return 'scatter';
-  }
-
-  public getDiagramMode() {
-    return 'lines'
   }
 
   public addData(data : SimData) {
@@ -206,18 +188,12 @@ export class BarDiagram extends Diagram {
         xaxis: {tickangle: -45} // Label inclination
       }
     }
+    this._data.mode = '';
+    this._data.type = 'bar';
   }
 
   public getTypeOfData() {
     return 'Bars';
-  }
-
-  public getDiagramType() {
-    return 'bar';
-  }
-
-  public getDiagramMode() {
-    return ''
   }
 
   public addData(data : SimData) {
