@@ -1,0 +1,12 @@
+<!--ion-tabs class="tabs-positive" selectedIndex=0>
+  <ion-tab tabTitle="Models" [root]="tabModelList"></ion-tab>
+  <ion-tab tabTitle="Simulations" [root]="tabSimuList"></ion-tab>
+  <ion-tab tabTitle="Settings" [root]="tabSettings"></ion-tab>
+</ion-tabs-->
+<div padding>
+  <ion-segment>
+    <ion-segment-button value="models" (click)="goToModelList()">models</ion-segment-button>
+    <ion-segment-button value="simus" (click)="goToSimuList()">simulations</ion-segment-button>
+    <ion-segment-button value="settings"(click)="goToSettings()">settings</ion-segment-button>
+  </ion-segment>
+</div>

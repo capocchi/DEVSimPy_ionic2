@@ -1,0 +1,37 @@
+<ion-content padding class="login">
+  <img width="100%" src="assets/logo.png"/>
+
+  <form>
+    <ion-input required [(ngModel)]="_userServer" name="userServer" list="datalist" type="text" placeholder="Enter server URL" [value]="(_connectionService.server$ | async)?.url"></ion-input>
+    <datalist id="datalist">
+      <option *ngFor="let serverOption of _connectionService.storedServers$ | async" value={{serverOption}}>{{serverOption}}</option>
+    </datalist>
+    <ion-input [(ngModel)]="_userLogin" name="userLogin" type="text" maxlength="30" placeholder="login"></ion-input>
+    <ion-input [(ngModel)]="_userPassword" name="userPassword" type="password" placeholder="password"></ion-input>
+    <button ion-button block (click)="selectServer()">CONNECT</button>
+  </form>
+
+</ion-content>
+
+<!--ion-navbar *navbar>
+  <ion-title>DEVSimPy</ion-title>
+</ion-navbar>
+
+<ion-content padding class="login">
+  <img width="100%" src="build/img/logo.png"/>
+  <ion-card>
+    <ion-card-header>SIMULATION SERVER</ion-card-header>
+    <ion-card-content>
+      <form>
+        <ion-input required [(ngModel)]="_userServer" list="datalist" type="text" placeholder="Enter server URL" [value]="(_connectionService.server$ | async)?.url"></ion-input>
+        <datalist id="datalist">
+          <option *ngFor="let serverOption of _connectionService.storedServers$ | async" value={{serverOption}}>{{serverOption}}</option>
+        </datalist>
+        <ion-input [(ngModel)]="_userLogin" type="text" maxlength="30" placeholder="login"></ion-input>
+        <ion-input [(ngModel)]="_userPassword" type="password" placeholder="password"></ion-input>
+
+        <button ion-button block (click)="selectServer()">CONNECT</button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content-->

@@ -1,0 +1,19 @@
+<!--ion-tabs #modelDetailTabs class="tabs-positive" selectedIndex="1">
+  <ion-tab tabIcon="arrow-back" [root]="tabModelList"></ion-tab>
+  <ion-tab tabIcon="eye" [root]="tabModelDiagram"></ion-tab>
+  <ion-tab tabIcon="options" [root]="tabModelBlock"></ion-tab>
+  <ion-tab tabIcon="list" [root]="tabSimuList"></ion-tab>
+  <ion-tab tabIcon="aperture" [root]="tabSimulation"></ion-tab>
+  <ion-tab tabIcon="pulse" [root]="tabSimuResult"></ion-tab>
+</ion-tabs-->
+
+<div padding>
+  <ion-segment>
+    <ion-segment-button value="back" (click)="goBackHome()"><ion-icon name="arrow-back"></ion-icon></ion-segment-button>
+    <ion-segment-button value="diag" (click)="goToDiagram()"><ion-icon name="eye"></ion-icon></ion-segment-button>
+    <ion-segment-button value="block"(click)="goToBlock()"><ion-icon name="options"></ion-icon></ion-segment-button>
+    <ion-segment-button value="simulist" (click)="goToSimuList()"><ion-icon name="list"></ion-icon></ion-segment-button>
+    <ion-segment-button value="simu" (click)="goToSimu()"><ion-icon name="aperture"></ion-icon></ion-segment-button>
+    <ion-segment-button value="result" (click)="goToResult()"><ion-icon name="pulse"></ion-icon></ion-segment-button>
+  </ion-segment>
+</div>
