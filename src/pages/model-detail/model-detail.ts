@@ -64,7 +64,7 @@ export class ModelDetailPage {
     this.nav.push(this.tabSimulation);
   }
 
-  goToSimuResult() {
+  goToResult() {
     this.nav.push(this.tabSimuResult);
   }
 }
