@@ -1,6 +1,6 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
-import { Storage } from '@ionic/storage';
+import { IonicStorageModule } from '@ionic/storage';
 
 import { MyApp } from './app.component';
 import { HomeMenu } from '../pages/home/home';
@@ -42,7 +42,8 @@ import {SimData, Diagram} from  '../data-types/result-diagram-types';
     SimulationListPage
   ],
   imports: [
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -66,8 +67,7 @@ import {SimData, Diagram} from  '../data-types/result-diagram-types';
     SimulationService,
     ConnectionService,
     PusherService,
-    VisualizationService,
-    Storage
+    VisualizationService
   ]
 })
 export class AppModule {}
