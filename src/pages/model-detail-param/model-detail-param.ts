@@ -3,8 +3,8 @@ import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { ModelService } from '../../providers/model-service/model-service';
 import { SimulationService } from '../../providers/simulation-service/simulation-service';
 import { Block, BlockParam } from '../../data-types/data-types';
-import { Geolocation } from 'ionic-native';
-import { Camera } from 'ionic-native';
+import { Geolocation } from '@ionic-native/geolocation';
+import { Camera, CameraOptions } from '@ionic-native/camera';
 
 @Component({
   templateUrl: 'model-detail-param.html',
@@ -15,12 +15,13 @@ export class ModelDetailParamPage {
   public _blockLocalCopy: Block;
   public _modelSubscription;
 
-
   constructor(public nav: NavController,
               public navParams: NavParams,
               public _modelService : ModelService,
               public _simulationService: SimulationService,
-              public alertController: AlertController) {
+              public alertController: AlertController,
+              public _geolocation: Geolocation,
+              public _camera: Camera) {
     this._blockLabel = navParams.get('blockLabel');
     this._blockLocalCopy = null;
   }
@@ -89,7 +90,7 @@ export class ModelDetailParamPage {
 
   public showLocation(param : BlockParam){
 
-    Geolocation.getCurrentPosition({maximumAge: 3000, timeout: 5000, enableHighAccuracy: true}).then(
+    this._geolocation.getCurrentPosition({maximumAge: 3000, timeout: 5000, enableHighAccuracy: true}).then(
       position => {
         let alert = this.alertController.create();
         alert.setTitle('Select geolocation input');
@@ -123,7 +124,7 @@ export class ModelDetailParamPage {
   public takePicture(param : BlockParam){
     // See options definition here :
     // https://github.com/driftyco/ionic-native/blob/master/src/plugins/camera.ts
-    let options = {
+    let options : CameraOptions = {
             destinationType: 1,// 0:base-64 encoded string/1:FileURI/2:NativeURI
             sourceType: 1,// 0:PhotoLibrary/1:Camera/2:SavedPhotoAlbum
             encodingType: 0,// 0:JPEG/1:PNG
@@ -131,7 +132,7 @@ export class ModelDetailParamPage {
             allowEdit: false,
             saveToPhotoAlbum: true
         };
-    Camera.getPicture(options).then(
+    this._camera.getPicture(options).then(
       img => {
         param.value = img; // for immediate display of the image
         param.imageUploadRequired = true;
@@ -152,11 +153,11 @@ export class ModelDetailParamPage {
         this._blockLocalCopy.params.forEach(
         param => {
           if (param.type === 'image' && param.imageUploadRequired) {
-            //console.log('UPLOAD image for ' + param.name)
+            console.log('UPLOAD image for ')
+            console.log(param)
             nbPictureUploadRequest++;
             this._modelService.uploadPicture(param.value, this._blockLocalCopy.label)
             .then (response => {
-              //console.log('UPLOAD done for ' + param.name);
               param.type = 'image';
               param.value = response;
               param.imageUploadRequired = false;
@@ -171,7 +172,7 @@ export class ModelDetailParamPage {
               console.log(error);
               pictureUploadSuccess = false;
               nbPictureUploadResponse++;
-              reject(`Image upload for ${param.name} failed.`);
+              reject(`Image upload failed.`);
             });
           }
         });

@@ -1,6 +1,11 @@
 import { NgModule, ErrorHandler } from '@angular/core';
 import { IonicApp, IonicModule, IonicErrorHandler } from 'ionic-angular';
 import { IonicStorageModule } from '@ionic/storage';
+import { StatusBar } from '@ionic-native/status-bar';
+import { SplashScreen } from '@ionic-native/splash-screen';
+import { Transfer } from '@ionic-native/transfer';
+import { Camera } from '@ionic-native/camera';
+import { Geolocation } from '@ionic-native/geolocation';
 
 import { MyApp } from './app.component';
 import { HomeMenu } from '../pages/home/home';
@@ -62,6 +67,11 @@ import {SimData, Diagram} from  '../data-types/result-diagram-types';
     SimulationListPage
   ],
   providers: [
+    StatusBar,
+    SplashScreen,
+    Transfer,
+    Camera,
+    Geolocation,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     ModelService,
     SimulationService,

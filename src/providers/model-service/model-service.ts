@@ -5,7 +5,7 @@ import {BehaviorSubject} from "rxjs/Rx";
 import {Storage} from '@ionic/storage';
 import {ConnectionService} from '../connection-service/connection-service';
 import {Model, Block} from '../../data-types/data-types';
-import { Transfer } from 'ionic-native';
+import {Transfer, TransferObject, FileUploadOptions} from '@ionic-native/transfer';
 
 const STORED_MODELS = "STORED_MODELS";
 
@@ -34,7 +34,8 @@ export class ModelService {
 
   constructor(public _http: Http,
               public _connectionService: ConnectionService,
-              public _localStorage : Storage) {
+              public _localStorage : Storage,
+              public _transfer: Transfer) {
 
     // Read models from local storage if exist
     this._modelStore = [];
@@ -165,9 +166,9 @@ export class ModelService {
 
   public uploadPicture(img : any, blockLabel : string) : Promise<string> {
     let url = `${this._modelsEndPoint}/${this._selectedModelBS$.getValue().model_name}/atomics/${blockLabel}/images`;
-
-    const fileTransfer = new Transfer();
-    const options = {
+    console.log(img)
+    const fileTransfer : TransferObject = this._transfer.create();
+    const options : FileUploadOptions = {
       fileKey  : "upload",
       fileName : img.substr(img.lastIndexOf('/')+1)
       //mimeType : default = image/jpeg
@@ -177,7 +178,8 @@ export class ModelService {
       //console.log(response);
       let filename = JSON.parse(response.response).image_filename;
       return `${url}/${filename}`;
-    });
+    })
+    .catch(e => {console.log(e)});
 
   }
 
