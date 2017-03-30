@@ -168,19 +168,25 @@ export class ModelService {
     let url = `${this._modelsEndPoint}/${this._selectedModelBS$.getValue().model_name}/atomics/${blockLabel}/images`;
     console.log(img)
     const fileTransfer : TransferObject = this._transfer.create();
-    const options : FileUploadOptions = {
+    /*const options : FileUploadOptions = {
       fileKey  : "upload",
       fileName : img.substr(img.lastIndexOf('/')+1)
       //mimeType : default = image/jpeg
-    }
+    }*/
+    var filename = img.substr(img.lastIndexOf('/')+1)
+    var options = {
+      fileKey: "upload",
+      fileName: filename,
+      chunkedMode: false,
+      //mimeType: "multipart/form-data",
+      params : {'fileName': filename}
+    };
     return fileTransfer.upload(img, encodeURI(url), options)
     .then (response => {
       //console.log(response);
       let filename = JSON.parse(response.response).image_filename;
       return `${url}/${filename}`;
     })
-    .catch(e => {console.log(e)});
-
   }
 
   public handleError (error: Response) {
