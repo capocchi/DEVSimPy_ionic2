@@ -56,7 +56,7 @@ export class ModelDetailSimuResultPage {
                 this._visuService.addUrlResult({label : o.label, plotUrl : o.plotUrl});
                 }
               if (o.filename) {
-                this._simulationService.getResultFileAsJSON(this._selectedSimu.simu_name, o.filename).subscribe(
+                this._simulationService.getResultFileAsJSON(simu.simu_name, o.filename).subscribe(
                     response => {
                       let data = response.json().data;
                       data.forEach(d => this._visuService.addDataResult({label : o.label, result : d}));

@@ -49,30 +49,32 @@ export class PusherService {
     this._liveStreamBS$.next([]);
     this._channel = this._pusher.subscribe(simu_name);
     //console.log("listen " + simu_name);
-    var that = this; // Javascript trick, this is undefined inside call-back
+    //var that = this; // Javascript trick, this is undefined inside call-back
 
-    this._channel.bind('progress', function(data) {
-      that._progressBS$.next(data.progress);
+    this._channel.bind('progress', (data)=> {
+      this._progressBS$.next(data.progress);
     });
 
-    this._channel.bind('live_streams', function(data) {
+    this._channel.bind('live_streams', (data) => {
+      console.log('PUSHER');
+      console.log(data)
       if (data.live_streams.length > 0) {
         data.live_streams.forEach(r => {
           if (r.plotUrl) {
-            that._visuService.addUrlResult(r);
+            this._visuService.addUrlResult(r);
           }
           if (r.pusherChannel) {
-            that._visuService.addDataStream();
+            this._visuService.addDataStream();
           }
         });
       }
-      that._liveStreamBS$.next(data.live_streams);
+      this._liveStreamBS$.next(data.live_streams);
     });
-    
-    this._channel.bind('output', function(data) {
+
+    this._channel.bind('output', (data)=> {
       if (data) {
         data.forEach(r => {
-          that._visuService.addDataResult(r);
+          this._visuService.addDataResult(r);
         });
       }
     });
