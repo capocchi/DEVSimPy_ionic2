@@ -1,6 +1,6 @@
 {
   "name": "DEVSimPy_ionic2",
   "app_id": "d74a2696",
-  "v2": true,
-  "typescript": true
+  "integrations": {},
+  "type": "ionic-angular"
 }
